@@ -1,0 +1,104 @@
+pragma solidcash ^0.51.0;
+pragma satoshicontainer single;
+
+import "./TokenPool.scash";
+
+/// Creates CashToken pools through the compiler's `new`, at most one for each asset and
+/// amount, and publishes each creation as an event of this contract's own category.
+///
+/// A pool's arguments are its exponent and its asset: its hashing and verifier locks are
+/// pinned in its code, the same for every pool, so a creation has nothing a creator could get
+/// wrong. The pool's constructor bounds the exponent and refuses an asset equal to its own
+/// category, at the pool's birth. The paying wallet supplies the one-unit coin that opens
+/// the pool's token container.
+///
+/// `registered` remembers which pools exist in one 32-byte root, so the state stays one
+/// record however many pools there are. It is the root of a sparse Merkle tree: a pool's slot
+/// is the first 16 bytes of sha256(asset || exponent), the exponent packed in two bytes, read
+/// as a number whose lowest bit picks the side at the leaf and highest bit the side at the
+/// root; its leaf is the pool's category. `create` proves its slot empty and writes the root with it filled, so a second pool of the
+/// same asset and amount is refused, and so is a stale proof. The list itself is the history
+/// of `PoolCreated`, which a page reads and checks against the root: a list that hides, adds
+/// or changes a pool gives another root.
+///
+/// 128 levels, not the 64 of a pool's nullifier tree: anyone can mint a token category, which
+/// is a txid they can grind, so a short slot could be ground into the slot of a pool nobody
+/// has made yet and taken first. At 128 bits that search is out of reach.
+///
+/// A creation's outputs of this contract's own category are the three the compiler pins: the
+/// master at its own index, the state record after it and the `PoolCreated` event after that.
+/// `create` refuses any other output of the category, whatever its lock, so every NFT of the
+/// category minted after the genesis is the event of the pool born beside it: only `create`
+/// can mint one, as the category's other NFTs, the state record and the BCMR identity, stay
+/// mutable under their own covenants. The compiler's own count of the category's outputs
+/// passes over an immutable NFT with no commitment, one shaped as an SCID anchor, and one at a
+/// bare `OP_1` lock, the lock of a return record; the last could hold a `PoolCreated` naming
+/// any pool, for anyone to move to the event's address. Readers take a `PoolCreated` only
+/// where `create` writes it, two outputs after this contract's master, so such a stray would
+/// list no pool, and this refusal means there is none.
+///
+/// The master's commitment is always empty, as every master's is: all state lives in the state
+/// record. The compiler keeps a master's commitment only in a function that touches no state,
+/// so `create` requires it empty itself: a commitment written there would ride on every later
+/// creation, up to 128 bytes each. The new pool's master is born empty too, as the compiler's
+/// `Deploy<C>` requires, and the pool's own functions keep it so.
+///
+/// The function is permissionless: this contract holds no funds and gives the caller no
+/// authority, and `allowUnsafeOperations` accepts the compiler's lifecycle warning. Anyone
+/// who can pay for a pool's genesis can make one, and the first creation of an asset and
+/// amount is the pool everyone uses.
+contract TokenPoolDeployer {
+    event PoolCreated(bytes32 indexed category, bytes32 indexed asset, uint8 exponent);
+
+    uint32 constant LEVELS = 128;
+    bytes32 constant NOTHING = 0x0000000000000000000000000000000000000000000000000000000000000000;
+    /// The root of the empty tree: 128 levels of sha256(0x03 || z || z) over 32 zero bytes.
+    bytes32 constant EMPTY = 0x563d9d5ee1d99f1a74433a089e010104b506397cd3f02626604a585a9664778c;
+
+    /// The root of the tree of the pools made here.
+    bytes32 registered;
+
+    constructor() {
+        this.registered = EMPTY;
+    }
+
+    function hashPair(bytes32 left, bytes32 right) internal pure returns (bytes32) {
+        return sha256(abi.encodePacked(bytes1(0x03), left, right));
+    }
+
+    /// `path` is the slot's 128 siblings, 32 bytes each, leaf first. Its length is exact, so
+    /// nobody can pad the unlocking and change the transaction's id.
+    function create(uint8 exponent, bytes32 asset, bytes path) public {
+        require(path.length == LEVELS * 32, "path");
+        TokenPool pool = new TokenPool{args: (exponent, asset)}();
+
+        int key = int(abi.encodePacked(sha256(abi.encodePacked(asset, exponent)).slice(0, 16), bytes1(0x00)));
+        bytes32 empty = NOTHING;
+        bytes32 filled = pool.category;
+        for (uint32 i = 0; i < LEVELS; i = i + 1) {
+            bytes32 sibling = bytes32(path.slice(i * 32, i * 32 + 32));
+            if (key % 2 == 0) {
+                empty = hashPair(empty, sibling);
+                filled = hashPair(filled, sibling);
+            } else {
+                empty = hashPair(sibling, empty);
+                filled = hashPair(sibling, filled);
+            }
+            key = key / 2;
+        }
+        require(empty == this.registered, "registered");
+        this.registered = filled;
+        emit PoolCreated(pool.category, asset, exponent);
+
+        // The master's commitment stays empty, as every master's does: see above.
+        require(tx.outputs[this.activeInputIndex].nftCommitment == 0x, "master");
+        // Nothing else of this contract's category, at any lock: see above.
+        bytes own = this.categoryId.split(32)[0];
+        for (bigint k = 0; k < tx.outputs.length; k = k + 1) {
+            bytes held = tx.outputs[k].tokenCategory;
+            if (held.length > 0 && !within(k, this.activeInputIndex, this.activeInputIndex + 3)) {
+                require(held.split(32)[0] != own, "category");
+            }
+        }
+    }
+}

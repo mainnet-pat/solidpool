@@ -1,0 +1,16 @@
+{
+  "network": "chipnet",
+  "solidcash": {
+    "version": "0.51.1"
+  },
+  "factories": {
+    "bch": "b6ebe8575e5c9f2dbc193486245cfbe1a02dd32a8648127eb11bc28b58047ecb",
+    "token": "cf0006fa6a53a4309293cb4bb548f9d2f5a5da0ec2bf69e5c02fa817dd443bc8"
+  },
+  "events": {
+    "bch": "bchtest:rwc32u9fwhm5am55fgpt3yel5ck2jml8juzn88ar2y962dw4aw88gf7lr20nu",
+    "token": "bchtest:rdtzjalzh706s6s8fzvcczl4ftm2erk8dg58vvf40fdpjx4psnzejnmrp42yk"
+  },
+  "pending": {},
+  "pools": []
+}

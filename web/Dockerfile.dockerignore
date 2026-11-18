@@ -1,0 +1,16 @@
+# What web/Dockerfile's build sees: the app, the project packages and artifacts it bundles.
+# Settings stay out of the build: an image carries none of its own.
+**/node_modules
+**/.next
+# The page's notices: the build writes its own (web/lib/licences.ts).
+web/public/licenses
+web/.env
+web/.env.*
+.env
+.env.*
+.git
+test
+docs
+deployments
+service/state.json
+*.log

@@ -1,0 +1,51 @@
+node_modules/
+web/node_modules/
+web/.next/
+# Next writes it on every dev server and build, naming the folder each one uses (.next or .next/dev).
+web/next-env.d.ts
+# The page's notices, which every build and dev server writes (web/lib/licences.ts).
+web/public/licenses/
+# Licence texts scripts/notices fetches once (npm run notices).
+scripts/notices/.cache/
+service/*.db
+service/*.db-wal
+service/*.db-shm
+*.db
+*.db-wal
+*.db-shm
+*.log
+app/screenshots/
+.DS_Store
+web/public/screenshots/
+# The devnet writes its test tokens' metadata here on every start (service/server.ts). The
+# registries the app pins, for tokens a network's index does not know, are committed.
+web/public/bcmr/*
+!web/public/bcmr/cd8a2d24f3fe3d935b18940eee78f3b70c816620290b4e6a9eaaf184719cb82c.json
+!web/public/bcmr/9e390a944ba3cea414170fd63abe4071ca2985e78bbd57675dd683de27513312.json
+web/tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+service/state.json
+service/state.json.*.old
+service/devnet-state.json
+deployments/local.json
+deployments/local.json.*.old
+# A rehearsal on a local node (scripts/regtest.sh).
+deployments/regtest.json
+deployments/*.json.next
+.env
+.env.*
+!/.env.example
+!web/.env.example
+web/.env
+web/.env.*
+!web/.env.example
+
+# Written by next dev.
+web/AGENTS.md
+
+# Vitest coverage
+coverage/
+
+# solidhat test writes source-relative copies; the app reads the flat artifacts
+contracts/artifacts/solidcash/contracts/

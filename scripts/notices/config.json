@@ -1,0 +1,171 @@
+{
+  "build": {
+    "about": "Settings the inventory's production build of web/ runs with. They only satisfy the build's checks: the build is read for what it bundles, then removed.",
+    "settings": {
+      "POOL_NETWORK": "chipnet",
+      "TRUSTLESS_FULCRUM_URL": "wss://fulcrum-a.example.org:50004",
+      "TRUSTLESS_BROADCAST_URL": "wss://fulcrum-b.example.net:50004",
+      "BCH_FACTORY": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "TOKEN_FACTORY": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "WALLETCONNECT_PROJECT_ID": "cccccccccccccccccccccccccccccccc",
+      "SITE_URL": "https://pools.example.org",
+      "SOURCE_URL": "https://source.example.org/solidpool",
+      "SOLIDPOOL_OFFLINE_BUILD": "1",
+      "NEXT_TELEMETRY_DISABLED": "1",
+      "DEVNET_ENABLED": "0"
+    }
+  },
+  "missingTexts": {
+    "about": "Licence texts for packages that ship none: the package's repository's, by URL. {version} is the installed version.",
+    "antlr4": "https://raw.githubusercontent.com/antlr/antlr4/{version}/LICENSE.txt",
+    "@mem-cash/*": "https://raw.githubusercontent.com/mainnet-pat/mem-cash/master/LICENSE",
+    "uint8arrays": "https://raw.githubusercontent.com/achingbrain/uint8arrays/main/LICENSE-MIT"
+  },
+  "partOfNext": {
+    "about": "Directories of next/dist/compiled that are Next's own build, covered by its licence.",
+    "names": [
+      "next-server",
+      "image-detector"
+    ]
+  },
+  "bundles": {
+    "about": "Prebuilt files that carry other packages' code with no source map to name it. A browserify bundle is read for the modules it requires; each one found must be listed here, with the version it is taken for and where its licence text comes from: installed, or npm:<name>@<version>. sha256 pins the file read; a new one stops the remake until this is reviewed. 'dependencies' says the file carries its package's dependencies.",
+    "websnark/build/websnark.js": {
+      "kind": "browserify",
+      "sha256": "acb70e44ad6039166b8154ccad8f2d55c6fc8895cef65427be98a29042816c0b",
+      "embeds": {
+        "snarkjs": {
+          "version": "four files of a release older than the installed one",
+          "text": "installed"
+        },
+        "big-integer": {
+          "version": "older than the installed one",
+          "text": "installed"
+        },
+        "assert": {
+          "version": "1.x",
+          "text": "npm:assert@1.5.0"
+        },
+        "util": {
+          "version": "0.10.x",
+          "text": "npm:util@0.10.4"
+        },
+        "inherits": {
+          "version": "2.0.x",
+          "text": "npm:inherits@2.0.3"
+        },
+        "buffer": {
+          "version": "5.x",
+          "text": "npm:buffer@5.7.1"
+        },
+        "base64-js": {
+          "version": "1.x",
+          "text": "npm:base64-js@1.3.1"
+        },
+        "ieee754": {
+          "version": "1.1.x",
+          "text": "npm:ieee754@1.1.13"
+        },
+        "object-assign": {
+          "version": "4.x",
+          "text": "npm:object-assign@4.1.1"
+        },
+        "process": {
+          "version": "0.11.x",
+          "text": "npm:process@0.11.10"
+        }
+      }
+    },
+    "ffjavascript/build/browser.esm.js": {
+      "kind": "dependencies",
+      "sha256": "ce6f4f516810aa494fd8544c1aaca9405edf8f58ba09e18b1b71cc05fa06800c"
+    }
+  },
+  "wasm": {
+    "about": "WebAssembly a package embeds, built from sources it does not ship: what libauth's wasm/ builds from, its secp256k1 submodule and the crates wasm/hashes' Cargo.lock compiles in. resolved pins the package these facts are for.",
+    "@bitauth/libauth": {
+      "resolved": "git+ssh://git@github.com/mainnet-pat/libauth.git#1cf4b432864b3a4ed9f33d1992355d7286f3dab8",
+      "embeds": [
+        {
+          "name": "libsecp256k1 (bitauth/libauth-secp256k1)",
+          "version": "",
+          "licence": "MIT",
+          "text": "https://raw.githubusercontent.com/bitauth/libauth-secp256k1/2b8e4e6a95a7da9fde0d15fb5351b22bcc1863c5/COPYING"
+        },
+        {
+          "name": "ripemd160 (Rust crate)",
+          "version": "0.7.0",
+          "licence": "MIT OR Apache-2.0",
+          "text": "crate:ripemd160@0.7.0/LICENSE-MIT"
+        },
+        {
+          "name": "sha-1 (Rust crate)",
+          "version": "0.7.0",
+          "licence": "MIT OR Apache-2.0",
+          "text": "crate:sha-1@0.7.0/LICENSE-MIT"
+        },
+        {
+          "name": "sha2 (Rust crate)",
+          "version": "0.7.1",
+          "licence": "MIT OR Apache-2.0",
+          "text": "crate:sha2@0.7.1/LICENSE-MIT"
+        },
+        {
+          "name": "digest (Rust crate)",
+          "version": "0.7.2",
+          "licence": "MIT OR Apache-2.0",
+          "text": "crate:digest@0.7.2/LICENSE-MIT"
+        },
+        {
+          "name": "block-buffer (Rust crate)",
+          "version": "0.3.3",
+          "licence": "MIT OR Apache-2.0",
+          "text": "crate:block-buffer@0.3.3/LICENSE-MIT"
+        },
+        {
+          "name": "byte-tools (Rust crate)",
+          "version": "0.2.0",
+          "licence": "MIT OR Apache-2.0",
+          "text": "crate:byte-tools@0.2.0/LICENSE-MIT"
+        },
+        {
+          "name": "fake-simd (Rust crate)",
+          "version": "0.1.2",
+          "licence": "MIT OR Apache-2.0",
+          "text": "crate:fake-simd@0.1.2/LICENSE-MIT"
+        },
+        {
+          "name": "generic-array (Rust crate)",
+          "version": "0.9.0",
+          "licence": "MIT",
+          "text": "crate:generic-array@0.9.0/LICENSE"
+        },
+        {
+          "name": "typenum (Rust crate)",
+          "version": "1.10.0",
+          "licence": "MIT OR Apache-2.0",
+          "text": "crate:typenum@1.10.0/LICENSE"
+        },
+        {
+          "name": "arrayref (Rust crate)",
+          "version": "0.3.4",
+          "licence": "BSD-2-Clause",
+          "text": "crate:arrayref@0.3.4/LICENSE"
+        },
+        {
+          "name": "wasm-bindgen (Rust crate)",
+          "version": "0.2.11",
+          "licence": "MIT OR Apache-2.0",
+          "text": "crate:wasm-bindgen@0.2.11/LICENSE-MIT"
+        }
+      ]
+    }
+  },
+  "sourceNotes": {
+    "about": "What THIRD_PARTY_NOTICES.md's Corresponding Source table says of a GPL-3.0 package's source, beside the address its lockfile pins.",
+    "websnark": "`main.js`, `src/` and `tools/` build `build/websnark.js`, which holds the snarkjs files it uses as readable source",
+    "snarkjs": "inside websnark's `build/websnark.js`, as readable source; the lockfile's snarkjs is this commit",
+    "circomlibjs": "`src/`",
+    "ffjavascript": "`main.js`, `src/` and the rollup configuration that build `build/browser.esm.js`, with wasmcurves and wasmbuilder"
+  }
+}

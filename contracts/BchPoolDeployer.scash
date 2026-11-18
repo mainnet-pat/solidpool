@@ -1,0 +1,63 @@
+pragma solidcash ^0.51.0;
+pragma satoshicontainer single;
+
+import "./BchPool.scash";
+
+/// Creates BCH pools through the compiler's `new`, at most one for each amount, and publishes
+/// each creation as an event of this contract's own category.
+///
+/// A pool's only argument is its exponent: its hashing and verifier locks are pinned in its
+/// code, the same for every pool, so a creation has nothing a creator could get wrong. The
+/// pool's constructor bounds the exponent at the pool's birth, so 10^6 to 10^10 satoshis.
+///
+/// `made` remembers which amounts have a pool, one bit for each: bit e is set once a pool
+/// paying 10^e satoshis exists. A second pool of an amount is refused here, so the
+/// `PoolCreated` list names one pool per amount, in a state that stays one record.
+///
+/// A creation's outputs of this contract's own category are the three the compiler pins: the
+/// master at its own index, the state record after it and the `PoolCreated` event after that.
+/// `create` refuses any other output of the category, whatever its lock, so every NFT of the
+/// category minted after the genesis is the event of the pool born beside it: only `create`
+/// can mint one, as the category's other NFTs, the state record and the BCMR identity, stay
+/// mutable under their own covenants. The compiler's own count of the category's outputs
+/// passes over an immutable NFT with no commitment, one shaped as an SCID anchor, and one at a
+/// bare `OP_1` lock, the lock of a return record; the last could hold a `PoolCreated` naming
+/// any pool, for anyone to move to the event's address. Readers take a `PoolCreated` only
+/// where `create` writes it, two outputs after this contract's master, so such a stray would
+/// list no pool, and this refusal means there is none.
+///
+/// The master's commitment is always empty, as every master's is: all state lives in the state
+/// record. The compiler keeps a master's commitment only in a function that touches no state,
+/// so `create` requires it empty itself: a commitment written there would ride on every later
+/// creation, up to 128 bytes each. The new pool's master is born empty too, as the compiler's
+/// `Deploy<C>` requires, and the pool's own functions keep it so.
+///
+/// The function is permissionless: this contract holds no funds and gives the caller no
+/// authority, and `allowUnsafeOperations` accepts the compiler's lifecycle warning. Anyone
+/// who can pay for a pool's genesis can make one, and the first creation of an amount is
+/// the pool everyone uses.
+contract BchPoolDeployer {
+    event PoolCreated(bytes32 indexed category, uint8 exponent);
+
+    /// The amounts that have a pool: the sum of 2^e over every exponent e made here.
+    int made;
+
+    function create(uint8 exponent) public {
+        int bit = 2 ** exponent;
+        require((made / bit) % 2 == 0, "made");
+        made = made + bit;
+        BchPool pool = new BchPool{args: (exponent)}();
+        emit PoolCreated(pool.category, exponent);
+
+        // The master's commitment stays empty, as every master's does: see above.
+        require(tx.outputs[this.activeInputIndex].nftCommitment == 0x, "master");
+        // Nothing else of this contract's category, at any lock: see above.
+        bytes own = this.categoryId.split(32)[0];
+        for (bigint k = 0; k < tx.outputs.length; k = k + 1) {
+            bytes held = tx.outputs[k].tokenCategory;
+            if (held.length > 0 && !within(k, this.activeInputIndex, this.activeInputIndex + 3)) {
+                require(held.split(32)[0] != own, "category");
+            }
+        }
+    }
+}

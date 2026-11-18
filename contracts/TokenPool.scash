@@ -1,0 +1,308 @@
+pragma solidcash ^0.51.0;
+pragma satoshicontainer single;
+pragma tokencontainer single;
+
+import "./Sidecars.scash";
+
+/// A fixed-amount CashToken pool, the same state machine as BchPool. A deposit adds
+/// one note to a Merkle tree; a withdrawal proves, with a Groth16 proof, that the
+/// withdrawer holds an unspent note in that tree, without saying which one.
+///
+/// Two categories are in play and they are different things:
+/// - `asset` is the CashToken the pool holds, a contract creation argument;
+/// - `this.category` is the contract's own master category, carried by its master
+///   and state record.
+///
+/// The transaction shapes:
+/// - deposit: the pool, the depositor's coins and 10 MimcHash coins. Adds the amount
+///   to the token container and the fees of `finish` and the withdrawal to the satoshi
+///   container, and hashes the first 10 levels of the tree. No other deposit can land
+///   until `finish` has run.
+/// - finish: the pool plus 10 MimcHash coins. Hashes the other 10 levels, publishes the
+///   root and lets the next deposit in. Anyone can run it, and the deposit prepaid it,
+///   so no signature is needed. A note's 20 hashes do not fit one standard transaction.
+/// - withdraw: the pool plus the verifier's three coins. Pays the recipient.
+///
+/// The fee is the input-output delta: `this.payMinerFee` lets the satoshi container
+/// lose that amount with no output. There is no relayer, and no owner signature:
+/// the proof binds the recipient.
+///
+/// `pragma satoshicontainer single` and `pragma tokencontainer single` keep the pool
+/// in one satoshi coin and one token coin, opened at deployment, so every coin of the
+/// pool stays pooled and no withdrawal spends a particular deposit's coin. That is
+/// what keeps deposits and withdrawals unlinked.
+///
+/// A note pays 10^`exponent` base units of `asset`, so every pool's amount is a power of
+/// ten, and the amount and the asset are the pool's only arguments. The MimcHash and
+/// verifier coins are the same for every pool: Sidecars.scash pins their locks, so a pool
+/// reads only coins that ran that code, and no creation can name others.
+contract TokenPool(uint8 exponent, bytes32 asset) {
+    event Deposit(uint32 indexed leafIndex, bytes32 indexed commitment);
+    event Withdraw(bytes32 indexed nullifierHash);
+
+    uint32 constant STEP_LEVELS = 10;
+    /// Where the 10 MimcHash coins start in each function. A coin's output has its index,
+    /// and a wallet's extra coins and its change come after them.
+    uint32 constant DEPOSIT_COINS = 6;
+    uint32 constant FINISH_COINS = 3;
+    uint32 constant TREE_CAPACITY = 1048576;
+    uint32 constant RECENT_ROOTS = 8;
+    uint32 constant NULLIFIER_LEVELS = 64;
+    /// What a withdrawal takes from the satoshi coin: its fee, and the 2,400 sat of its
+    /// recipient's coin and its event. The longest proof the client makes gives about
+    /// 39,900 B, so at 1 sat/B this leaves at least 1,000 sat to spare.
+    int constant WITHDRAW_FEE = 43500;
+    int constant FINISH_FEE = 91000;
+    /// Where the pool's satoshi coin sits, in every function.
+    uint32 constant SATOSHI_COIN = 2;
+    /// What the deployment leaves in the satoshi coin, which no note can take.
+    int constant SEED_SATOSHIS = 1200;
+    /// What the deployment leaves in the token coin, which no note can take.
+    int constant SEED_TOKENS = 1;
+    /// The dust floor of a token coin of the largest amount. A coin keeps its satoshis while the
+    /// floor rises with its amount, so one under this may not be recreated by a later call.
+    int constant TOKEN_COIN_FLOOR = 705;
+    /// A note pays 10^exponent base units of the asset, from 1 to 10^12. A few fixed amounts
+    /// gather the notes into a few pools, and a pool's anonymity set is the notes it holds.
+    /// The token coin holds every live note, and a CashToken amount is at most 2^63 - 1
+    /// (about 9.22e18). 10^12 is the largest power of ten at which a full tree of
+    /// TREE_CAPACITY notes fits: 1.05e18 units, about 11% of that limit. At 10^13 the limit
+    /// would stop deposits at 922,337 live notes, before the tree is full, and each power
+    /// above that cuts the notes a pool can hold tenfold.
+    uint8 constant LEAST_EXPONENT = 0;
+    uint8 constant MOST_EXPONENT = 12;
+
+
+    /// Where the verifier's statement sits in its last input's unlocking bytecode:
+    /// root, nullifierHash and recipient, 32 bytes each, little-endian. The verifier
+    /// pins every push there, so this offset cannot move.
+    uint32 constant STATEMENT = 357;
+
+    /// The empty subtree at each of the 20 levels, 32 bytes each, little-endian.
+    bytes constant ZEROS = 0x6caf9948ed859624e241e7760f341b82b45da1ebb6353a34f3abacd3604ce52f1de3528a2b6d18544122eeca35529d43257a03b7b8546fd22fee7e7735616a2500c2f083366199814b50002bd960cb7b6f3d0ac492de2499b12ae89598945111db3b8b060b6bba0da228b48bf2a05949f113e389fb091fd6f89f4811e81e1220c957c124ab82dc576a2a02bfd6a3501a22ed302c84dbfe2c46cc14fa6fca890a5949b5df66d541fe130f9cec9c1cf2f489068dc694bed690e842cdb5c205ca245c31a704e6795676ee5c024e467713bff3082dbabd5601c6925a5632c997cb1cb4bd82b1d1cdbc03e0790f4fabeb3445621bde679390a8cbf58b1a7dbd6f151980ffdf11cb0466e337ffe5c60a92c366d422f60914644457462e91f0c1f81a2607c0d117c2543fabbe195b978ef05c89932be8c3cb2f65a1a56cff2497455800301eadc2403c3c57d44908d20a31a6af0ea768e7ab8e4d98398de4de20ef041fe511d5666ca462f986263ea5ea6a27d4a67b0fa300e2e77c5651ab5dec3dea1b0f2f37d36cb43c1b077741087cd968cea98f0da497cac3319e4bdae241f9e00ebd8b946aa3f3ebb2e3967bc97297b8464ceb14be20afbb01458835893e50a91c08b16c44327218e28e89dac35dba5740e27b5b96b0d4f7d855cd9706e3803a13b653628a147e4f647a42908cd19ddac0b2f59a772a2c186ed79e8388fcd8e6135418b68dbdb7cb9d69b3bf158ff798105639ee6bea72f5c84b7f477a056bb11eea960662148174aaeb6d0a9e8d08a3a3f2e3a9f738b8161cbfaacea116cba20d9d9f6412ee5cd7ebd25105949eea981ef074a5286ccbd8b5140b4222d8b3a32405fc6afe0958633f9b514c5ce99d88d8e4c81f5b1064900d1b3d78bdac228619;
+    bytes32 constant EMPTY_ROOT = 0xd496520be32fae75d9cedda85ed239f39fb833e9866c59eac3cc561239edd729;
+    bytes32 constant NOTHING = 0x0000000000000000000000000000000000000000000000000000000000000000;
+
+    /// sha256 of the last 8 roots, oldest first. A proof stays valid while up to 7
+    /// deposits land after it was made, and a withdrawal has one size.
+    bytes32 recentRoots;
+    /// Between deposits, sha256 of the frontier: the tree's 20 left-hand nodes. While a
+    /// note is being hashed, sha256(sha256(frontier) || node), which binds the node too.
+    bytes32 treeState;
+    /// The root of a 64-level sparse tree of spent nullifiers.
+    bytes32 nullifierState;
+    uint32 nextIndex;
+    /// 0: the next deposit can land. 1: a deposited note is waiting for `finish`.
+    uint8 stage;
+    /// The notes paid for and not yet withdrawn. A deposit reads this to see what the pool owes.
+    uint32 live;
+
+    constructor() {
+        // The asset cannot be the contract's own category: its master and record carry
+        // that, and it holds no fungible amount.
+        require(asset != this.category, "asset-is-master");
+
+        require(within(exponent, LEAST_EXPONENT, MOST_EXPONENT + 1), "exponent");
+
+        this.recentRoots = sha256(abi.encodePacked(
+            EMPTY_ROOT, EMPTY_ROOT, EMPTY_ROOT, EMPTY_ROOT, EMPTY_ROOT, EMPTY_ROOT, EMPTY_ROOT, EMPTY_ROOT
+        ));
+        this.treeState = sha256(ZEROS);
+
+        bytes32 z = NOTHING;
+        for (uint32 i = 0; i < NULLIFIER_LEVELS; i = i + 1) {
+            z = sha256(abi.encodePacked(bytes1(0x03), z, z));
+        }
+        this.nullifierState = z;
+    }
+
+    function hashNullifierPair(bytes32 left, bytes32 right) internal pure returns (bytes32) {
+        return sha256(abi.encodePacked(bytes1(0x03), left, right));
+    }
+
+    function isRecent(bytes recent, bytes32 digest, bytes32 root) internal pure returns (bool) {
+        require(sha256(recent) == digest, "roots");
+        bool known = false;
+        for (uint32 i = 0; i < RECENT_ROOTS; i = i + 1) {
+            known = known || bytes32(recent.slice(i * 32, i * 32 + 32)) == root;
+        }
+        return known;
+    }
+
+    /// Check 10 levels of a note's path, from level `base`. The 10 MimcHash inputs from
+    /// `first` prove each hash; this checks that they hash the right values. Returns
+    /// the frontier and the node above them.
+    function climb(bytes frontier, bytes32 node, uint32 base, uint32 first) internal view returns (bytes, bytes32) {
+        uint32 index = this.nextIndex >> base;
+        bytes next = frontier;
+        for (uint32 i = 0; i < STEP_LEVELS; i = i + 1) {
+            uint32 at = (base + i) * 32;
+            require(tx.inputs[first + i].lockingBytecode == WORKER_LOCK, "worker");
+            bytes unlocking = tx.inputs[first + i].unlockingBytecode;
+            bytes32 out = bytes32(unlocking.slice(1, 33));
+            bytes32 right = bytes32(unlocking.slice(34, 66));
+            bytes32 left = bytes32(unlocking.slice(67, 99));
+            if ((index & 1) == 0) {
+                require(left == node, "left");
+                require(right == bytes32(ZEROS.slice(at, at + 32)), "zero");
+                next = abi.encodePacked(next.slice(0, at), node, next.slice(at + 32, 640));
+            } else {
+                require(left == bytes32(frontier.slice(at, at + 32)), "sibling");
+                require(right == node, "right");
+            }
+            node = out;
+            index = index >> 1;
+        }
+        return (next, node);
+    }
+
+    // Every public function keeps the master's commitment. Nothing reads it, and anyone
+    // who could change it could grow every later transaction by 128 bytes. Every one also
+    // asks for the master at input 0, so a history reader finds every event in one place:
+    // the hashing and verifier coins beside it serve any pool, so they cannot say where it is.
+
+    /// Add one note, and hash it up the first 10 levels. It is not in the tree until
+    /// `finish` has run, and no other deposit can land before then. A value at or over
+    /// the field cannot be hashed, so a MimcHash coin refuses it here. The transaction
+    /// must add 10^exponent base units of `asset` to the token container and the fees
+    /// to the satoshi container.
+    function deposit(bytes32 commitment, bytes frontier) public payable {
+        int denomination = 10 ** exponent;
+        require(msg.value == WITHDRAW_FEE + FINISH_FEE, "value");
+        require(this.stage == 0, "busy");
+        require(this.activeInputIndex == 0, "master");
+        require(tx.outputs[this.activeInputIndex].nftCommitment == tx.inputs[this.activeInputIndex].nftCommitment, "master");
+        require(this.nextIndex < TREE_CAPACITY, "full");
+
+        // A CashToken UTXO can hold BCH, fungible tokens and an NFT at once, so a coin
+        // worth little in tokens can carry a lot of BCH. A deposit coin must be a clean
+        // fungible UTXO, which keeps such a coin out of the pool.
+        //
+        // SolidCash spends the pool's token container here too, and it holds the
+        // asset's category, so the coin rules must not reach it: anyone can add
+        // satoshis to it. Every token-bearing input is one of:
+        // - own state: this.category with a mutable or minting capability;
+        // - a deposit coin: `asset` at a P2PKH, with no capability, no commitment, a
+        //   positive amount and under 1,500 satoshis;
+        // - the token container: `asset` at a script lock, likewise with no capability
+        //   and no commitment, and enough satoshis to be recreated at any amount. The
+        //   sum check below makes this exact: these inputs must add up to what
+        //   `this.tokens[asset]` reads, and each holds a positive amount, so no other
+        //   script-locked coin can be among them.
+        // Any other category is refused, and an asset coin at any other script lock
+        // cannot be deposited. An immutable NFT with an empty commitment beside a
+        // fungible amount reads as fungible and no script can see it.
+        int scriptLocked = 0;
+        for (uint32 i = 0; i < tx.inputs.length; i = i + 1) {
+            bytes cat = tx.inputs[i].tokenCategory;
+            if (cat.length > 0) {
+                bytes catId, bytes capByte = cat.split(32);
+                bytes displayId = catId.reverse();
+                if (displayId == this.category) {
+                    require(capByte == 0x01 || capByte == 0x02, "deposit-token");
+                } else {
+                    require(displayId == asset, "deposit-token");
+                    require(tx.inputs[i].tokenAmount > 0, "token-nft");
+                    require(capByte.length == 0, "token-nft");
+                    require(tx.inputs[i].nftCommitment.length == 0, "token-nft");
+                    if (tx.inputs[i].lockingBytecode.length == 25) {
+                        require(tx.inputs[i].value < 1500, "token-bch");
+                    } else {
+                        require(tx.inputs[i].value >= TOKEN_COIN_FLOOR, "token-coin");
+                        scriptLocked = scriptLocked + tx.inputs[i].tokenAmount;
+                    }
+                }
+            }
+        }
+        int reserveBefore = this.tokens[asset].tokenAmount;
+        int reserveAfter = this.outState.tokens[asset].tokenAmount;
+        require(scriptLocked == reserveBefore, "deposit-lock");
+        require(reserveAfter == reserveBefore + denomination, "value");
+
+        // A coin takes a note only if it then holds all the pool owes, in tokens and in fees.
+        // Anyone can pay a coin to the pool's locks and a transaction can pick it, so without
+        // this the pool's money could be spread over coins none of which pays a note. Nothing
+        // else needs the rule: `finish` and `withdraw` take no more from any coin than they
+        // lower what the pool owes.
+        uint32 notes = this.live + 1;
+        this.live = notes;
+        require(reserveAfter >= SEED_TOKENS + notes * denomination, "reserve");
+        require(tx.outputs[SATOSHI_COIN].value >= SEED_SATOSHIS + notes * WITHDRAW_FEE + FINISH_FEE, "reserve");
+
+        require(sha256(frontier) == this.treeState, "frontier");
+        bytes next = frontier;
+        bytes32 node = commitment;
+        (next, node) = climb(frontier, node, 0, DEPOSIT_COINS);
+        this.treeState = sha256(abi.encodePacked(sha256(next), node));
+        this.stage = 1;
+        emit Deposit(this.nextIndex, commitment);
+    }
+
+    /// Hash the second half of the deposited note's path, which publishes its root and
+    /// lets the next deposit in. Anyone can run it, and the deposit prepaid it, so no
+    /// signature is needed. `recent` is the last 8 roots, oldest first.
+    function finish(bytes frontier, bytes32 node, bytes recent) public {
+        require(this.stage == 1, "idle");
+        require(this.activeInputIndex == 0, "master");
+        require(tx.outputs[this.activeInputIndex].nftCommitment == tx.inputs[this.activeInputIndex].nftCommitment, "master");
+        require(sha256(abi.encodePacked(sha256(frontier), node)) == this.treeState, "frontier");
+        bytes next = frontier;
+        (next, node) = climb(frontier, node, STEP_LEVELS, FINISH_COINS);
+
+        require(sha256(recent) == this.recentRoots, "roots");
+        this.recentRoots = sha256(abi.encodePacked(recent.slice(32, 256), node));
+        this.treeState = sha256(next);
+        this.stage = 0;
+        this.nextIndex = this.nextIndex + 1;
+        this.payMinerFee(FINISH_FEE);
+    }
+
+    /// Pay one denomination to `recipient`. The last input is the verifier's, and its
+    /// statement is what this acts on: the proof is checked over exactly these values,
+    /// so the root must be a recent one, the nullifier unspent, and the recipient the
+    /// one the prover chose. Nobody who sees the proof can redirect the payment.
+    function withdraw(
+        bytes recent,
+        bytes32[NULLIFIER_LEVELS] nullifierSiblings,
+        address recipient,
+        bytes4 salt
+    ) public {
+        require(this.activeInputIndex == 0, "master");
+        require(tx.outputs[this.activeInputIndex].nftCommitment == tx.inputs[this.activeInputIndex].nftCommitment, "master");
+        uint32 last = tx.inputs.length - 1;
+        require(tx.inputs[last].lockingBytecode == VERIFIER_LOCK, "verifier");
+        bytes unlocking = tx.inputs[last].unlockingBytecode;
+        bytes32 root = bytes32(unlocking.slice(STATEMENT, STATEMENT + 32));
+        bytes32 nullifierHash = bytes32(unlocking.slice(STATEMENT + 32, STATEMENT + 64));
+        bytes32 payee = bytes32(unlocking.slice(STATEMENT + 64, STATEMENT + 96));
+
+        // The statement holds a field element, so it names the recipient by the first
+        // 31 bytes of a hash of its locking bytecode: any address type fits. The salt is
+        // the prover's: about 1 statement in 570 has a proof too large for the verifier's
+        // input, and changing the salt changes the statement. The hash still binds the
+        // recipient, so no salt lets anyone pay someone else.
+        require(payee == bytes32(abi.encodePacked(bytes(sha256(abi.encodePacked(bytes(recipient), salt))).slice(0, 31), bytes1(0x00))), "recipient");
+
+        require(isRecent(recent, this.recentRoots, root), "root");
+
+        uint256 key = uint256(sha256(nullifierHash));
+        bytes32 empty = NOTHING;
+        bytes32 filled = nullifierHash;
+        for (uint32 i = 0; i < NULLIFIER_LEVELS; i = i + 1) {
+            if (((key >> (NULLIFIER_LEVELS - 1 - i)) & 1) == 0) {
+                empty = hashNullifierPair(empty, nullifierSiblings[i]);
+                filled = hashNullifierPair(filled, nullifierSiblings[i]);
+            } else {
+                empty = hashNullifierPair(nullifierSiblings[i], empty);
+                filled = hashNullifierPair(nullifierSiblings[i], filled);
+            }
+        }
+        require(empty == this.nullifierState, "spent");
+
+        this.nullifierState = filled;
+        this.live = this.live - 1;
+        emit Withdraw(nullifierHash);
+        this.tokens[asset].transfer(recipient, 10 ** exponent);
+        this.payMinerFee(WITHDRAW_FEE);
+    }
+}

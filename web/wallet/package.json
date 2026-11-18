@@ -1,0 +1,9 @@
+{
+  "name": "@solidpool/wallet",
+  "version": "0.0.0",
+  "private": true,
+  "license": "ISC",
+  "type": "module",
+  "types": "./index.ts",
+  "exports": { ".": "./index.ts", "./package.json": "./package.json" }
+}

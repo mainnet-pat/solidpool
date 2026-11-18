@@ -1,0 +1,15 @@
+node_modules
+**/node_modules
+web/.next
+web/public
+service/state.json
+deployments
+test
+docs
+.git
+*.log
+# Settings stay out of the build: an image carries none.
+.env
+.env.*
+web/.env
+web/.env.*

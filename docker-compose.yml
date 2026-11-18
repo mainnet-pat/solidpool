@@ -1,0 +1,128 @@
+name: solidpool
+
+# The app and its indexer, one pair per chain, as profiles:
+#   docker compose --profile chipnet up -d --build
+#   docker compose --profile mainnet up -d --build
+#
+# The settings come from the environment or from a .env file beside this one; .env.example lists
+# them. A service that lacks one, or whose servers will not do, stops and says why:
+# `docker compose logs app-chipnet`.
+#
+# No port is published to the host or the internet. nginx joins the `solidpool` network and serves
+# each service under its public https:// URL, setting X-Forwarded-For: the app at
+# http://app-mainnet:8787 or http://app-chipnet:8787 under its SITE_URL, and the indexer at
+# http://indexer-mainnet:8080 or http://indexer-chipnet:8080 under the URL its network's
+# MAINNET_INDEXER_URL or CHIPNET_INDEXER_URL names.
+
+x-hardened: &hardened
+  restart: unless-stopped
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  networks: [solidpool]
+
+x-indexer: &indexer
+  <<: *hardened
+  build:
+    context: .
+    dockerfile: Dockerfile
+  expose: ["8080"]
+  healthcheck:
+    test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+    interval: 30s
+    timeout: 5s
+    retries: 5
+
+x-app: &app
+  <<: *hardened
+  # Next makes .next/cache as it starts, and keeps nothing there that this app needs kept.
+  tmpfs: [/tmp, "/app/web/.next/cache:uid=1000,gid=1000,mode=0700"]
+  expose: ["8787"]
+  healthcheck:
+    test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/icon.svg').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+    interval: 30s
+    timeout: 5s
+    retries: 5
+
+# Every app's settings but the network it opens on and its public origin: each network's servers,
+# factories and indexer under that network's names, so an app offers every network the .env sets
+# up, whole (web/.env.example), and the WalletConnect project and source they share.
+x-app-settings: &app-settings
+  MAINNET_TRUSTLESS_FULCRUM_URL: ${MAINNET_TRUSTLESS_FULCRUM_URL:-}
+  MAINNET_TRUSTLESS_BROADCAST_URL: ${MAINNET_TRUSTLESS_BROADCAST_URL:-}
+  MAINNET_BCH_FACTORY: ${MAINNET_BCH_FACTORY:-}
+  MAINNET_TOKEN_FACTORY: ${MAINNET_TOKEN_FACTORY:-}
+  MAINNET_INDEXER_URL: ${MAINNET_INDEXER_URL:-}
+  CHIPNET_TRUSTLESS_FULCRUM_URL: ${CHIPNET_TRUSTLESS_FULCRUM_URL:-}
+  CHIPNET_TRUSTLESS_BROADCAST_URL: ${CHIPNET_TRUSTLESS_BROADCAST_URL:-}
+  CHIPNET_BCH_FACTORY: ${CHIPNET_BCH_FACTORY:-}
+  CHIPNET_TOKEN_FACTORY: ${CHIPNET_TOKEN_FACTORY:-}
+  CHIPNET_INDEXER_URL: ${CHIPNET_INDEXER_URL:-}
+  WALLETCONNECT_PROJECT_ID: ${WALLETCONNECT_PROJECT_ID:-}
+  SOURCE_URL: ${SOURCE_URL:-}
+  # Optional, and blank means each one's default: token metadata, the WalletConnect relay, and a CDN
+  # for the prover's files, which the build bakes into the page.
+  BCMR_SERVICE_URL: ${BCMR_SERVICE_URL:-}
+  WALLETCONNECT_RELAY_URL: ${WALLETCONNECT_RELAY_URL:-}
+  NEXT_PUBLIC_CIRCUIT_URL: ${NEXT_PUBLIC_CIRCUIT_URL:-}
+  NEXT_PUBLIC_PROVING_KEY_URL: ${NEXT_PUBLIC_PROVING_KEY_URL:-}
+
+services:
+  indexer-mainnet:
+    <<: *indexer
+    profiles: [mainnet]
+    environment:
+      POOL_NETWORK: mainnet
+      # A server of your own: the indexer lists what it shows. Not a public one by default.
+      FULCRUM_URL: ${MAINNET_INDEXER_FULCRUM_URL:-}
+      # Its network's two factories, under the bare names the indexer reads.
+      BCH_FACTORY: ${MAINNET_BCH_FACTORY:-}
+      TOKEN_FACTORY: ${MAINNET_TOKEN_FACTORY:-}
+      BCMR_SERVICE_URL: ${BCMR_SERVICE_URL:-https://bcmr.paytaca.com}
+      ARCHIVE_RATE_LIMIT: ${ARCHIVE_RATE_LIMIT:-1200}
+      POOLS_RATE_LIMIT: ${POOLS_RATE_LIMIT:-120}
+
+  indexer-chipnet:
+    <<: *indexer
+    profiles: [chipnet]
+    environment:
+      POOL_NETWORK: chipnet
+      FULCRUM_URL: ${CHIPNET_INDEXER_FULCRUM_URL:-}
+      BCH_FACTORY: ${CHIPNET_BCH_FACTORY:-}
+      TOKEN_FACTORY: ${CHIPNET_TOKEN_FACTORY:-}
+      BCMR_SERVICE_URL: ${BCMR_SERVICE_URL:-https://bcmr.paytaca.com}
+      ARCHIVE_RATE_LIMIT: ${ARCHIVE_RATE_LIMIT:-1200}
+      POOLS_RATE_LIMIT: ${POOLS_RATE_LIMIT:-120}
+
+  # The app checks its settings' form as the image is built, and everything again, servers and
+  # factories included, as it starts, from the environment below. Each app gets every network's
+  # settings, and opens on its own network.
+  app-mainnet:
+    <<: *app
+    profiles: [mainnet]
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      args: &app-mainnet
+        <<: *app-settings
+        POOL_NETWORK: mainnet
+        SITE_URL: ${MAINNET_SITE_URL:-}
+    environment: *app-mainnet
+
+  app-chipnet:
+    <<: *app
+    profiles: [chipnet]
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      args: &app-chipnet
+        <<: *app-settings
+        POOL_NETWORK: chipnet
+        SITE_URL: ${CHIPNET_SITE_URL:-}
+    environment: *app-chipnet
+
+networks:
+  # Named, so an nginx of another compose project can join it as an external network.
+  solidpool:
+    name: solidpool

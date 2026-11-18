@@ -1,0 +1,16 @@
+{
+  "network": "mainnet",
+  "solidcash": {
+    "version": "0.51.1"
+  },
+  "factories": {
+    "bch": "d8db78466ca0636f0f1ab902aa9efa8833ab18345011faf8dc3a9e2cb53c26c7",
+    "token": "da5397afd56f2ff9c732699c0849133b0d4b4256a2fcd5848c60bac678185d21"
+  },
+  "events": {
+    "bch": "bitcoincash:rwacn6q4z4gtgd05euvzp6gslff7nrrf587eykvd4xw7qtyq64uh5rgxktumq",
+    "token": "bitcoincash:r0lqlnz8tl69xm2wqswl7z5gajlwvtmqjasatng63taw34k3wkzy7q00nr07k"
+  },
+  "pending": {},
+  "pools": []
+}

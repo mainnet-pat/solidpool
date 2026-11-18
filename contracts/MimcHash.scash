@@ -1,0 +1,36 @@
+pragma solidcash ^0.51.0;
+
+/// One MiMC hash, proved in its own input.
+///
+/// A deposit needs 20 hashes and one input's op budget holds one, so the pool spends
+/// a row of these coins beside its master. The pool reads `left`, `right` and `out`
+/// from the fixed offsets of this input's unlocking bytecode: three 32-byte pushes
+/// in reverse argument order.
+///
+/// `mimc` is the precompile scripts/lib/mimc-script.ts generates: circomlib's
+/// MiMCSponge(2, 220, 1) over the BN254 scalar field, the circuit's tree hash.
+///
+/// The code names no pool, so every pool shares one lock and anyone can make a coin
+/// of it. A coin recreates itself at its own index with its value and no token,
+/// whatever else the transaction holds, so no transaction can take its value, or
+/// leave it with a token, which would stop a client reading it.
+///
+/// A coin that has not moved for SWEEP_AGE blocks can be swept by anyone, but only
+/// as its transaction's only input. A pool's transaction always has more inputs, so
+/// every coin a pool reads has proved its hash.
+contract MimcHash {
+    /// About ten days of blocks.
+    int constant SWEEP_AGE = 1440;
+
+    function hash(bytes32 left, bytes32 right, bytes32 out) public {
+        if (tx.inputs.length == 1) {
+            require(this.age >= SWEEP_AGE, "age");
+        } else {
+            uint32 coin = this.activeInputIndex;
+            require(tx.outputs[coin].lockingBytecode == tx.inputs[coin].lockingBytecode, "coin");
+            require(tx.outputs[coin].value == tx.inputs[coin].value, "coin");
+            require(tx.outputs[coin].tokenCategory.length == 0, "coin");
+            require(mimc(abi.encodePacked(left, right)) == out, "mimc");
+        }
+    }
+}

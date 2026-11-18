@@ -1,0 +1,21 @@
+{
+  "pools": [
+    {
+      "id": "bch001",
+      "kind": "bch",
+      "name": "Bitcoin Cash",
+      "symbol": "BCH",
+      "decimals": 8,
+      "denomination": "1000000"
+    },
+    {
+      "id": "tusd",
+      "kind": "token",
+      "name": "Test USD",
+      "symbol": "TUSD",
+      "decimals": 2,
+      "denomination": "100",
+      "asset": "7d38e4ac33478b74466d5a262fff4d5375520e1fb83cfee910084fce10867663"
+    }
+  ]
+}

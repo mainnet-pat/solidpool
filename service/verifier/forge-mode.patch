@@ -1,0 +1,54 @@
+--- a/bn-native-sound/protocol.mjs
++++ b/bn-native-sound/protocol.mjs
+@@ -116,9 +116,9 @@
+ // ---------------- prover ----------------
+ // The core witness (independent of the fillers): statement, streams, digests, quotient. Every identity is checked
+ // exactly (divisibility by M) before the challenge is derived.
+-export function proveCore({proof, publicInputs}, {es: esOverride} = {}) {
++export function proveCore({proof, publicInputs}, {es: esOverride, forge = false} = {}) {
+   const A = g1(proof.a), B = g2(proof.b), C = g1(proof.c);
+-  A.assertValidity(); B.assertValidity(); C.assertValidity();
++  if (!forge) { A.assertValidity(); B.assertValidity(); C.assertValidity(); }
+   const ns = publicInputs.map(BigInt); ns.forEach((n) => assert.ok(n >= 0n && n < r));
+   const es = esOverride ?? ns.map((n) => glsDecompose(n));
+   es.forEach((e, k) => { assert.equal(mod(e.reduce((s, v, i) => s + v * PI[i], 0n), r), ns[k]); e.forEach((v) => assert.ok(v >= -GLS_OFFSET && v < GLS_OFFSET, 'sub-scalar range')); });
+@@ -127,11 +127,11 @@
+   const Aa = A.toAffine(), Ba = B.toAffine(), Ca = C.toAffine();
+   const st = {xA: Aa.x, yA: Aa.y, xB: Ba.x, yB: Ba.y, xC: Ca.x, yC: Ca.y, N};
+   const sched = factorSchedule(st);
+-  assert.ok(sched.endpoint, 'B endpoint');
++  if (!forge) assert.ok(sched.endpoint, 'B endpoint');
+   let raw = F12.ONE;
+   for (const ev of sched.events) { raw = F12.sqr(raw); for (const f of ev.fs) raw = F12.mul(raw, fromPoly(f)); }
+   for (const f of sched.term) raw = F12.mul(raw, fromPoly(f));
+-  assert.ok(F12.eql(F12.finalExponentiate(raw), F12.ONE), 'Groth16 equation fails');
++  if (!forge) assert.ok(F12.eql(F12.finalExponentiate(raw), F12.ONE), 'Groth16 equation fails');
+   const minv = (a, m) => { let [x, y] = [mod(a, m), m], [s0, s1] = [1n, 0n]; while (y) { const q = x / y; [x, y] = [y, x - q * y]; [s0, s1] = [s1, s0 - q * s1]; } assert.equal(x, 1n); return mod(s0, m); };
+   const u = F12.mul(F12.conjugate(raw), F12.inv(raw)), v = F12.pow(u, minv(LAMBDA, N6R)), c = F12.add(F12.ONE, F12.conjugate(v));
+   const Sc = monicRep(c);
+@@ -152,7 +152,7 @@
+   const Fr1 = frob1Monic(Sc); ids.push({P: Pfin, W: pmul(Fr1, psubst(Fr1, ETA))});
+   for (const id of ids) {
+     const Nn = pmul(id.P, pneg(id.W)); const D = psub(Nn, pneg(Nn)); const {q, r: rem} = pdivM(D);
+-    assert.ok(rem.every((x) => x === 0n), 'identity not divisible by M'); assert.ok(q.every((x, i) => i % 2 === 1 || x === 0n), 'quotient not odd');
++    if (!forge) assert.ok(rem.every((x) => x === 0n), 'identity not divisible by M'); assert.ok(q.every((x, i) => i % 2 === 1 || x === 0n), 'quotient not odd'); id.exact = rem.every((x) => x === 0n);
+     id.Q = q;
+   }
+   // statement and streams
+@@ -177,7 +177,7 @@
+   while (qOdd.length > 1 && qOdd.at(-1) === 0n) qOdd.pop();
+   assert.ok(qOdd.at(-1) !== 0n);
+   const WQ = concat(qOdd.slice().reverse().map(W));
+-  return {STMT, S, D, WQ, nq: qOdd.length, es, ns, N, Sc, states, rho, rhoRaw, h0, st, sched};
++  return {STMT, S, D, WQ, nq: qOdd.length, es, ns, N, Sc, states, rho, rhoRaw, h0, st, sched, forge, exact: ids.map((id) => id.exact), Qs: ids.map((id) => id.Q)};
+ }
+ 
+ // ---------------- value-level mirror of the on-chain loop (per role, chained by the handovers) ----------------
+@@ -216,6 +216,6 @@
+ export function handovers(core, z) {
+   let s = startState(core, z); const H = [null];
+   for (let i = 0; i < NROLES; i++) { s = runRange(core, z, CUTS[i], CUTS[i + 1], s); if (i < NROLES - 1) H.push(encodeHand(s)); }
+-  const fin = finish(core, z, s); assert.ok(fin.ok, 'value-level final identity');
++  const fin = finish(core, z, s); if (!core.forge) assert.ok(fin.ok, 'value-level final identity');
+   return {H, final: s};
+ }

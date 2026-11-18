@@ -1,0 +1,6 @@
+{
+  "pools": [
+    { "id": "bch01", "kind": "bch", "name": "Bitcoin Cash", "symbol": "BCH", "decimals": 8, "denomination": "10000000" },
+    { "id": "bch1", "kind": "bch", "name": "Bitcoin Cash", "symbol": "BCH", "decimals": 8, "denomination": "100000000" }
+  ]
+}

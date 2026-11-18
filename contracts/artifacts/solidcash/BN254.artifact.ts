@@ -1,0 +1,714 @@
+export default {
+  contractName: 'BN254',
+  constructorInputs: [],
+  abi: [
+    {
+      name: 'fpMul',
+      selector: 'ca5f533a',
+      inputs: [
+        {
+          name: 'a',
+          type: 'bigint',
+        },
+        {
+          name: 'b',
+          type: 'bigint',
+        },
+        {
+          name: '__internal__returnOutputIdx',
+          type: 'bigint',
+        },
+      ],
+      outputs: [
+        {
+          type: 'bigint',
+        },
+      ],
+      resultEncoding: 'compact-pushdata-v1',
+      callRecord: true,
+      modifiers: [
+        'public',
+        'pure',
+      ],
+      sourceEffectOrder: 'linear',
+    },
+    {
+      name: 'fp2Mul',
+      selector: '3f4afdfd',
+      inputs: [
+        {
+          name: 'a0',
+          type: 'bigint',
+        },
+        {
+          name: 'a1',
+          type: 'bigint',
+        },
+        {
+          name: 'b0',
+          type: 'bigint',
+        },
+        {
+          name: 'b1',
+          type: 'bigint',
+        },
+        {
+          name: '__internal__returnOutputIdx',
+          type: 'bigint',
+        },
+      ],
+      outputs: [
+        {
+          type: 'bigint',
+        },
+        {
+          type: 'bigint',
+        },
+      ],
+      resultEncoding: 'compact-pushdata-v1',
+      callRecord: true,
+      modifiers: [
+        'public',
+        'pure',
+      ],
+      sourceEffectOrder: 'linear',
+    },
+    {
+      name: 'fp2Sqr',
+      selector: '28171cf0',
+      inputs: [
+        {
+          name: 'a0',
+          type: 'bigint',
+        },
+        {
+          name: 'a1',
+          type: 'bigint',
+        },
+        {
+          name: '__internal__returnOutputIdx',
+          type: 'bigint',
+        },
+      ],
+      outputs: [
+        {
+          type: 'bigint',
+        },
+        {
+          type: 'bigint',
+        },
+      ],
+      resultEncoding: 'compact-pushdata-v1',
+      callRecord: true,
+      modifiers: [
+        'public',
+        'pure',
+      ],
+      sourceEffectOrder: 'linear',
+    },
+    {
+      name: 'g1Add',
+      selector: '7be049e3',
+      inputs: [
+        {
+          name: 'x1',
+          type: 'bigint',
+        },
+        {
+          name: 'y1',
+          type: 'bigint',
+        },
+        {
+          name: 'z1',
+          type: 'bigint',
+        },
+        {
+          name: 'x2',
+          type: 'bigint',
+        },
+        {
+          name: 'y2',
+          type: 'bigint',
+        },
+        {
+          name: 'z2',
+          type: 'bigint',
+        },
+        {
+          name: '__internal__returnOutputIdx',
+          type: 'bigint',
+        },
+      ],
+      outputs: [
+        {
+          type: 'bigint',
+        },
+        {
+          type: 'bigint',
+        },
+        {
+          type: 'bigint',
+        },
+      ],
+      resultEncoding: 'compact-pushdata-v1',
+      callRecord: true,
+      modifiers: [
+        'public',
+        'pure',
+      ],
+      sourceEffectOrder: 'unsupported-flow',
+    },
+    {
+      name: 'benchFpMul',
+      selector: 'd5ef91ed',
+      inputs: [
+        {
+          name: 'seed',
+          type: 'bigint',
+        },
+        {
+          name: '__internal__returnOutputIdx',
+          type: 'bigint',
+        },
+      ],
+      outputs: [
+        {
+          type: 'bigint',
+        },
+      ],
+      resultEncoding: 'compact-pushdata-v1',
+      callRecord: true,
+      modifiers: [
+        'public',
+        'pure',
+      ],
+      sourceEffectOrder: 'unsupported-flow',
+    },
+    {
+      name: 'benchFp2Mul',
+      selector: '4e4e5548',
+      inputs: [
+        {
+          name: 'seed',
+          type: 'bigint',
+        },
+        {
+          name: '__internal__returnOutputIdx',
+          type: 'bigint',
+        },
+      ],
+      outputs: [
+        {
+          type: 'bigint',
+        },
+        {
+          type: 'bigint',
+        },
+      ],
+      resultEncoding: 'compact-pushdata-v1',
+      callRecord: true,
+      modifiers: [
+        'public',
+        'pure',
+      ],
+      sourceEffectOrder: 'unsupported-flow',
+    },
+    {
+      name: 'benchG1Add',
+      selector: '2516192b',
+      inputs: [
+        {
+          name: 'seed',
+          type: 'bigint',
+        },
+        {
+          name: '__internal__returnOutputIdx',
+          type: 'bigint',
+        },
+      ],
+      outputs: [
+        {
+          type: 'bigint',
+        },
+        {
+          type: 'bigint',
+        },
+        {
+          type: 'bigint',
+        },
+      ],
+      resultEncoding: 'compact-pushdata-v1',
+      callRecord: true,
+      modifiers: [
+        'public',
+        'pure',
+      ],
+      sourceEffectOrder: 'unsupported-flow',
+    },
+  ],
+  bytecode: '007a518a970079009f630079518a93517a7568007a OP_0 OP_DEFINE 0079537995518a975279557995518a97527a537a93537a547a9395518a5b8a5995518a9794008a517a537a94527a94008a517a517a OP_2 OP_DEFINE 5279537995518a975679577995518a975279517995518a97567a537995518a975579597995518a97537a95518a97577a577995518a97547a95518a97527a537994008a517a527994008a5179009c630079009c635479557995518a975679577995518a970079517995518a975779527993518a975879537993518a9795518a97537994517994008a53547995518a970079517995518a9700795254799594008a52795479527994008a955856799594008a525e79955f7995518a5b8a5279578a578a578a578a578a537a75537a7567005100578a578a537a75537a7568675179527995518a970079537995518a975579527995518a9753795479955279945252799594008a54795279527994008a95577954799594008a5b795d7995518a97577995518a5b8a5279578a578a578a578a537a75537a7568 OP_4 OP_DEFINE 5a8a52588a7c7b95518a97538a7c568a78558a7551 ca5f533a OP_DEFINE 5a8a52588a53588a54588a78547995518a975379567995518a97537a547a93719395518a5b8a5995518a9794008a7c537a947b94008a5d8a 3f4afdfd OP_DEFINE 5a8a52588a78527995518a975379547995518a975379557993719395518a5b8a5995518a9794008a7c537a947b94008a5d8a 28171cf0 OP_DEFINE 5a8a52588a53588a54588a55588a56588a5379545e8a53797895518a97577a537995518a9756795a7995518a97537a95518a97587a587995518a97547a95518a977b537994008a7c527994008a78009c6376009c635579565e8a767695518a975879527993518a975979537993518a9795518a975379947894008a53547995518a97767695518a97765254799594008a707c527994008a955856799594008a525f7995607995518a976f5c8a670051005c8a686778527995518a9776537995518a975579527995518a9753795479955279945252799594008a54795279527994008a95577954799594008a5c795e7995518a97577995518a976f5c8a685e7a568a011279558a6d6d6d6d6d6d6d6d6d51 7be049e3 OP_DEFINE 5a8a7c00598a65765a9f6378527995518a977b757c768b598a7700675168667c538a7b568a5279558a6d51 d5ef91ed OP_DEFINE 5a8a787b8b518a9700598a65765a9f6378705579528a537a757c6b7c6c537a757c6b7c6c768b598a7700675168667b7b7c538a7c538a7e7b568a5279558a6d51 4e4e5548 OP_DEFINE 5a8a787b8b518a975100598a65765a9f637853795579547956795879548a547a7572537a547a7572537a547a7572537a768b598a77006751686672537a5c8a7b568a5279558a6d51 2516192b OP_DEFINE 20010000f093f5e1439170b97948e833285d588181b64550b829a031e1724e6430 OP_1 OP_DEFINE 76820087636d01006782518763764f87636d014f6776817651a27c60a19a63758101509351806775517c7e686867758276014ba16351807c7e677602ff00a1635280517f75014c7c7e7c7e675380527f75014d7c7e7c7e68686868 OP_3 OP_DEFINE 7600a2637dd28876d1c0ce01207f758876d3008876cd015188cc02b004a1676d0068c0ce826301207f7500c4658c76cd810200019701519c78d15479879a7b937c76916675779d676d68c0c7c0cd88c0cec0d188c076009f637567ce00c3658c76ce5379877b937c76916675c47663658c76d15379877b7c947c769166687500a2697568c0c6c0cc88c0d0c0d3a169 OP_5 OP_DEFINE a8011f7f757c820160a1635167a852687c7e7e OP_6 OP_DEFINE 537a75537a75537a75 OP_7 OP_DEFINE 79818252807c7e7e OP_8 OP_DEFINE 765580547f77010088 OP_9 OP_DEFINE 78818252807c7e7e OP_10 OP_DEFINE 9752795279 OP_11 OP_DEFINE 7b538a7b538a7b538a7b7b7e7c7e OP_12 OP_DEFINE 7c538a7c538a7e7c568a78558a7551 OP_13 OP_DEFINE 7995518a975779587995518a97 OP_14 OP_DEFINE OP_DEPTH OP_1SUB OP_ROLL OP_SIZE OP_4 OP_NUMEQUALVERIFY 0000 OP_OVER OP_CAT OP_SWAP OP_INVOKE',
+  source: 'pragma solidcash ^0.51.0;\n\n/// BN254 (alt_bn128) arithmetic primitives, the curve Tornado\'s Groth16\n/// verifier uses. Nothing here is Tornado-specific: it is the cost probe for\n/// "can a pairing check fit in BCH Script?".\ncontract BN254() {\n    bigint constant P = 21888242871839275222246405745257275088548364400416034343698204186575808495617;\n    bigint constant XI = 9;\n\n    function norm(bigint x) internal pure returns (bigint) {\n        bigint y = x % P;\n        if (y < 0) y = y + P;\n        return y;\n    }\n\n    function fpMul(bigint a, bigint b) public pure returns (bigint) {\n        return (a * b) % P;\n    }\n\n    function fp2Mul(bigint a0, bigint a1, bigint b0, bigint b1) public pure returns (bigint, bigint) {\n        bigint aa = (a0 * b0) % P;\n        bigint bb = (a1 * b1) % P;\n        bigint cross = ((a0 + a1) * (b0 + b1)) % P;\n        bigint c0 = norm(aa - (bb * XI) % P);\n        bigint c1 = norm(cross - aa - bb);\n        return (c0, c1);\n    }\n\n    function fp2Sqr(bigint a0, bigint a1) public pure returns (bigint, bigint) {\n        bigint aa = (a0 * a0) % P;\n        bigint bb = (a1 * a1) % P;\n        bigint cross = ((a0 + a1) * (a0 + a1)) % P;\n        return (norm(aa - (bb * XI) % P), norm(cross - aa - bb));\n    }\n\n    /// Jacobian point addition for a = 0 (BN254), add-2007-bl.\n    function g1Add(\n        bigint x1, bigint y1, bigint z1,\n        bigint x2, bigint y2, bigint z2\n    ) public pure returns (bigint, bigint, bigint) {\n        bigint z1z1 = (z1 * z1) % P;\n        bigint z2z2 = (z2 * z2) % P;\n        bigint u1 = (x1 * z2z2) % P;\n        bigint u2 = (x2 * z1z1) % P;\n        bigint s1 = (((y1 * z2) % P) * z2z2) % P;\n        bigint s2 = (((y2 * z1) % P) * z1z1) % P;\n        bigint h = norm(u2 - u1);\n        bigint r = norm(s2 - s1);\n        if (h == 0) {\n            if (r == 0) {\n                // doubling (dbl-2009-l)\n                bigint a = (x1 * x1) % P;\n                bigint b = (y1 * y1) % P;\n                bigint c = (b * b) % P;\n                bigint d = norm((((x1 + b) % P) * ((x1 + b) % P)) % P - a - c);\n                bigint e = (3 * a) % P;\n                bigint f = (e * e) % P;\n                bigint x3 = norm(f - 2 * d);\n                bigint y3 = norm(e * norm(d - x3) - 8 * c);\n                bigint z3 = (2 * y1 * z1) % P;\n                return (x3, y3, z3);\n            }\n            return (0, 1, 0);\n        }\n        bigint hh = (h * h) % P;\n        bigint hhh = (hh * h) % P;\n        bigint v = (u1 * hh) % P;\n        bigint x3 = norm(r * r - hhh - 2 * v);\n        bigint y3 = norm(r * norm(v - x3) - s1 * hhh);\n        bigint z3 = (((z1 * z2) % P) * h) % P;\n        return (x3, y3, z3);\n    }\n\n    function benchFpMul(bigint seed) public pure returns (bigint) {\n        bigint acc = seed;\n        for (uint32 i = 0; i < 10; i = i + 1) {\n            acc = (acc * acc) % P;\n        }\n        return acc;\n    }\n\n    function benchFp2Mul(bigint seed) public pure returns (bigint, bigint) {\n        bigint a0 = seed;\n        bigint a1 = (seed + 1) % P;\n        for (uint32 i = 0; i < 10; i = i + 1) {\n            (a0, a1) = fp2Mul(a0, a1, a0, a1);\n        }\n        return (a0, a1);\n    }\n\n    function benchG1Add(bigint seed) public pure returns (bigint, bigint, bigint) {\n        bigint x = seed;\n        bigint y = (seed + 1) % P;\n        bigint z = 1;\n        for (uint32 i = 0; i < 10; i = i + 1) {\n            (x, y, z) = g1Add(x, y, z, x, y, z);\n        }\n        return (x, y, z);\n    }\n}\n',
+  debug: {
+    bytecode: '15007a518a970079009f630079518a93517a7568007a0089350079537995518a975279557995518a97527a537a93537a547a9395518a5b8a5995518a9794008a517a537a94527a94008a517a517a52894d37015279537995518a975679577995518a975279517995518a97567a537995518a975579597995518a97537a95518a97577a577995518a97547a95518a97527a537994008a517a527994008a5179009c630079009c635479557995518a975679577995518a970079517995518a975779527993518a975879537993518a9795518a97537994517994008a53547995518a970079517995518a9700795254799594008a52795479527994008a955856799594008a525e79955f7995518a5b8a5279578a578a578a578a578a537a75537a7567005100578a578a537a75537a7568675179527995518a970079537995518a975579527995518a9753795479955279945252799594008a54795279527994008a95577954799594008a5b795d7995518a97577995518a5b8a5279578a578a578a578a537a75537a75685489155a8a52588a7c7b95518a97538a7c568a78558a755104ca5f533a89385a8a52588a53588a54588a78547995518a975379567995518a97537a547a93719395518a5b8a5995518a9794008a7c537a947b94008a5d8a043f4afdfd89325a8a52588a78527995518a975379547995518a975379557993719395518a5b8a5995518a9794008a7c537a947b94008a5d8a0428171cf0894d10015a8a52588a53588a54588a55588a56588a5379545e8a53797895518a97577a537995518a9756795a7995518a97537a95518a97587a587995518a97547a95518a977b537994008a7c527994008a78009c6376009c635579565e8a767695518a975879527993518a975979537993518a9795518a975379947894008a53547995518a97767695518a97765254799594008a707c527994008a955856799594008a525f7995607995518a976f5c8a670051005c8a686778527995518a9776537995518a975579527995518a9753795479955279945252799594008a54795279527994008a95577954799594008a5c795e7995518a97577995518a976f5c8a685e7a568a011279558a6d6d6d6d6d6d6d6d6d51047be049e3892b5a8a7c00598a65765a9f6378527995518a977b757c768b598a7700675168667c538a7b568a5279558a6d5104d5ef91ed89405a8a787b8b518a9700598a65765a9f6378705579528a537a757c6b7c6c537a757c6b7c6c768b598a7700675168667b7b7c538a7c538a7e7b568a5279558a6d51044e4e554889485a8a787b8b518a975100598a65765a9f637853795579547956795879548a547a7572537a547a7572537a547a7572537a768b598a77006751686672537a5c8a7b568a5279558a6d51042516192b892120010000f093f5e1439170b97948e833285d588181b64550b829a031e1724e643051894c5b76820087636d01006782518763764f87636d014f6776817651a27c60a19a63758101509351806775517c7e686867758276014ba16351807c7e677602ff00a1635280517f75014c7c7e7c7e675380527f75014d7c7e7c7e6868686853894c8f7600a2637dd28876d1c0ce01207f758876d3008876cd015188cc02b004a1676d0068c0ce826301207f7500c4658c76cd810200019701519c78d15479879a7b937c76916675779d676d68c0c7c0cd88c0cec0d188c076009f637567ce00c3658c76ce5379877b937c76916675c47663658c76d15379877b7c947c769166687500a2697568c0c6c0cc88c0d0c0d3a169558913a8011f7f757c820160a1635167a852687c7e7e568909537a75537a75537a7557890879818252807c7e7e588909765580547f7701008859890878818252807c7e7e5a890597527952795b890e7b538a7b538a7b538a7b7b7e7c7e5c890f7c538a7c538a7e7c568a78558a75515d890d7995518a975779587995518a975e89748c7a82549d020000787e7c8a',
+    sourceMap: '10:4:14:5;;;20::27;;;37::72;;;16::18;;;20::27;;;29::34;;;37::72;;;74::80;;;82::89;;;91::99;;;6:0:100:1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;',
+    logs: [],
+    requires: [],
+    functionDebug: {
+      ca5f533a: {
+        requires: [],
+        logs: [],
+        sourceMap: '16:4:18:5;;;;;17:16:17:17;:20::21;:16:::1;7:24:7:101:0;;17:15:17:26:1;:8::27;;16:4:18:5;;;;;;;',
+      },
+      '3f4afdfd': {
+        requires: [],
+        logs: [],
+        sourceMap: '20:4:27:5;;;;;;;;;;;21:21:21:23;:26::28;;:21:::1;7:24:7:101:0;;21:20:21:33:1;22:21:22:23:0;;:26::28;;:21:::1;7:24:7:101:0;;22:20:22:33:1;23:25:23:27:0;;:30::32;;:25:::1;:37::44:0;::::1;:24::45;7::7:101:0;;23:23:23:50:1;;8:25:8:26:0;24:31:24:38:1;7:24:7:101:0;;24:30:24:43:1;:25;:20::44;;25:25:25:30:0;:33::35;;:25:::1;:38::40:0;:25:::1;:20::41;;26:8:26:24;',
+      },
+      '28171cf0': {
+        requires: [],
+        logs: [],
+        sourceMap: '29:4:34:5;;;;;30:21:30:23;:26::28;;:21:::1;7:24:7:101:0;;30:20:30:33:1;31:21:31:23:0;;:26::28;;:21:::1;7:24:7:101:0;;31:20:31:33:1;32:25:32:27:0;;:30::32;;:25:::1;:37::44:0;::::1;:24::45;7::7:101:0;;32:23:32:50:1;;8:25:8:26:0;33:27:33:34:1;7:24:7:101:0;;33:26:33:39:1;:21;:16::40;;:47::52:0;:55::57;;:47:::1;:60::62:0;:47:::1;:42::63;;:8::65;',
+      },
+      '7be049e3': {
+        requires: [],
+        logs: [],
+        sourceMap: '37:4:72:5;;;;;;;;;;;;;;;;;41:23:41:25;;:28::30;;;43:21:43:23;;:26::30;:21:::1;7:24:7:101:0;;43:20:43:35:1;44:21:44:23:0;;:26::30;;:21:::1;7:24:7:101:0;;44:20:44:35:1;45:23:45:25:0;;:28::30;;:23:::1;7:24:7:101:0;;45:22:45:35:1;:39::43:0;;:21:::1;7:24:7:101:0;;45:20:45:48:1;46:23:46:25:0;;:28::30;;:23:::1;7:24:7:101:0;;46:22:46:35:1;:39::43:0;;:21:::1;7:24:7:101:0;;46:20:46:48:1;47:24:47:26:0;:29::31;;:24:::1;:19::32;;48:24:48:26:0;:29::31;;:24:::1;:19::32;;49:12:49:13:0;:17::18;:12:::1;:20:64:9:0;50:16:50:17;:21::22;:16:::1;:24:62:13:0;52:28:52:30;;:33::35;;;54:28:54:33;;::::1;7:24:7:101:0;;54:27:54:38:1;55:35:55:37:0;;:40::41;;:35:::1;7:24:7:101:0;;55:34:55:46:1;:52::54:0;;:57::58;;:52:::1;7:24:7:101:0;;55:51:55:63:1;:33::64;7:24:7:101:0;;55:32:55:69:1;:72::73:0;;:32:::1;:76::77:0;:32:::1;:27::78;;56:28:56:29:0;:32::33;;:28:::1;7:24:7:101:0;;56:27:56:38:1;57:28:57:33:0;;::::1;7:24:7:101:0;;57:27:57:38:1;58:33:58:34:0;:37::38;:41::42;;:37:::1;:33;:28::43;;59:33:59::0;;:46::48;;:42:::1;:37::49;;:33;:52::53:0;:56::57;;:52:::1;:33;:28::58;;60:29:60:30:0;:33::35;;:29:::1;:38::40:0;;:29:::1;7:24:7:101:0;;60:28:60:45:1;61:24:61:34:0;:16::36:1;;50:12:62:13:0;63:20:63:21;:23::24;:26::27;:12::29:1;;50::62:13;49:8:64:9:0;65:21:65:22;:25::26;;:21:::1;7:24:7:101:0;;65:20:65:31:1;66:22:66:24:0;:27::28;;:22:::1;7:24:7:101:0;;66:21:66:33:1;67:20:67:22:0;;:25::27;;:20:::1;7:24:7:101:0;;67:19:67:32:1;68:25:68:26:0;;:29::30;;:25:::1;:33::36:0;;:25:::1;:39::40:0;:43::44;;:39:::1;:25;:20::45;;69:25:69:26:0;;:34::35;;:38::40;;:34:::1;:29::41;;:25;:44::46:0;;:49::52;;:44:::1;:25;:20::53;;70:23:70:25:0;;:28::30;;:23:::1;7:24:7:101:0;;70:22:70:35:1;:39::40:0;;:21:::1;7:24:7:101:0;;70:20:70:45:1;71:16:71:26:0;:8::28:1;;49::64:9;37:4:72:5;;;;;;;;;;;;;;;;;',
+      },
+      d5ef91ed: {
+        requires: [],
+        logs: [],
+        sourceMap: '74:4:80:5;;75:21:75:25;76:24:76;:13::26:1;;:8:78:9:0;:27:76:28;:31::33;:27:::1;:8:78:9:0;77:19:77:22;:25::28;;:19:::1;7:24:7:101:0;;77:18:77:33:1;:12::34;;;76:39:76:40:0;:::44:1;;;:35;:8:78:9;;;;;79:15:79:18:0;:8::19:1;;74:4:80:5;;;;;;;;',
+      },
+      '4e4e5548': {
+        requires: [],
+        logs: [],
+        sourceMap: '82:4:89:5;;83:20:83:24;84:21:84:25;:::29:1;7:24:7:101:0;;84:20:84:34:1;85:24:85:25:0;:13::26:1;;:8:87:9:0;:27:85:28;:31::33;:27:::1;:8:87:9:0;86:42:86:44;:34::40;:30::32;;:23::45:1;;:12::46;;;;;;;;;;;;;;85:39:85:40:0;:::44:1;;;:35;:8:87:9;;;;;88:16:88:18:0;:20::22;:8::24:1;;;;;;;82:4:89:5;;;;;;;;',
+      },
+      '2516192b': {
+        requires: [],
+        logs: [],
+        sourceMap: '91:4:99:5;;92:19:92:23;93:20:93:24;:::28:1;7:24:7:101:0;;93:19:93:33:1;94::94:20:0;95:24:95:25;:13::26:1;;:8:97:9:0;:27:95:28;:31::33;:27:::1;:8:97:9:0;96:45:96:46;:42::43;;:39::40;;:36::37;;:33::34;;:30::31;;:24::47:1;;:12::48;;;;;;;;;;;;;;;;;;95:39:95:40:0;:::44:1;;;:35;:8:97:9;;;;;98:16:98:20:0;:22::23;;:8::25:1;;91:4:99:5;;;;;;;;',
+      },
+    },
+    invokeDebug: {
+      '0': {
+        bytecode: '007a518a970079009f630079518a93517a7568007a',
+        name: 'norm',
+        requires: [],
+        logs: [],
+        sourceMap: '11:19:11:20;;7:24:7:101;;11:19:11:24:1;12:12:12:13:0;;:16::17;:12:::1;:19::29:0;:23::24;;7:24:7:101;;12:23:12:28:1;:19::29;;;;13:15:13:16:0;',
+      },
+      '1': {
+        bytecode: '20010000f093f5e1439170b97948e833285d588181b64550b829a031e1724e6430',
+        name: 'outlined source span 1',
+        requires: [],
+        logs: [],
+        sourceMap: '7:24:7:101',
+      },
+      '2': {
+        bytecode: '0079537995518a975279557995518a97527a537a93537a547a9395518a5b8a5995518a9794008a517a537a94527a94008a517a517a',
+        name: 'fp2Mul',
+        requires: [],
+        logs: [],
+        sourceMap: '21:21:21:23;;:26::28;;:21:::1;7:24:7:101:0;;21:20:21:33:1;22:21:22:23:0;;:26::28;;:21:::1;7:24:7:101:0;;22:20:22:33:1;23:25:23:27:0;;:30::32;;:25:::1;:37::39:0;;:42::44;;:37:::1;:24::45;7::7:101:0;;23:23:23:50:1;;8:25:8:26:0;24:31:24:38:1;7:24:7:101:0;;24:30:24:43:1;:25;:20::44;;25:25:25:30:0;;:33::35;;:25:::1;:38::40:0;;:25:::1;:20::41;;26:16:26:18:0;;:20::22;',
+      },
+      '3': {
+        bytecode: '76820087636d01006782518763764f87636d014f6776817651a27c60a19a63758101509351806775517c7e686867758276014ba16351807c7e677602ff00a1635280517f75014c7c7e7c7e675380527f75014d7c7e7c7e68686868',
+        name: 'outlined source span 3',
+        requires: [],
+        logs: [],
+        sourceMap: '17:8:17:27:1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;',
+      },
+      '4': {
+        bytecode: '5279537995518a975679577995518a975279517995518a97567a537995518a975579597995518a97537a95518a97577a577995518a97547a95518a97527a537994008a517a527994008a5179009c630079009c635479557995518a975679577995518a970079517995518a975779527993518a975879537993518a9795518a97537994517994008a53547995518a970079517995518a9700795254799594008a52795479527994008a955856799594008a525e79955f7995518a5b8a5279578a578a578a578a578a537a75537a7567005100578a578a537a75537a7568675179527995518a970079537995518a975579527995518a9753795479955279945252799594008a54795279527994008a95577954799594008a5b795d7995518a97577995518a5b8a5279578a578a578a578a537a75537a7568',
+        name: 'g1Add',
+        requires: [],
+        logs: [],
+        sourceMap: '41:23:41:25;;:28::30;;:23:::1;7:24:7:101:0;;41:22:41:35:1;42:23:42:25:0;;:28::30;;:23:::1;7:24:7:101:0;;42:22:42:35:1;43:21:43:23:0;;:26::30;;:21:::1;7:24:7:101:0;;43:20:43:35:1;44:21:44:23:0;;:26::30;;:21:::1;7:24:7:101:0;;44:20:44:35:1;45:23:45:25:0;;:28::30;;:23:::1;7:24:7:101:0;;45:22:45:35:1;:39::43:0;;:21:::1;7:24:7:101:0;;45:20:45:48:1;46:23:46:25:0;;:28::30;;:23:::1;7:24:7:101:0;;46:22:46:35:1;:39::43:0;;:21:::1;7:24:7:101:0;;46:20:46:48:1;47:24:47:26:0;;:29::31;;:24:::1;:19::32;;48:24:48:26:0;;:29::31;;:24:::1;:19::32;;49:12:49:13:0;;:17::18;:12:::1;:20:64:9:0;50:16:50:17;;:21::22;:16:::1;:24:62:13:0;52:28:52:30;;:33::35;;:28:::1;7:24:7:101:0;;52:27:52:40:1;53:28:53:30:0;;:33::35;;:28:::1;7:24:7:101:0;;53:27:53:40:1;54:28:54:29:0;;:32::33;;:28:::1;7:24:7:101:0;;54:27:54:38:1;55:35:55:37:0;;:40::41;;:35:::1;7:24:7:101:0;;55:34:55:46:1;:52::54:0;;:57::58;;:52:::1;7:24:7:101:0;;55:51:55:63:1;:33::64;7:24:7:101:0;;55:32:55:69:1;:72::73:0;;:32:::1;:76::77:0;;:32:::1;:27::78;;56:28:56:29:0;:32::33;;:28:::1;7:24:7:101:0;;56:27:56:38:1;57:28:57:29:0;;:32::33;;:28:::1;7:24:7:101:0;;57:27:57:38:1;58:33:58:34:0;;:37::38;:41::42;;:37:::1;:33;:28::43;;59:33:59:34:0;;:42::43;;:46::48;;:42:::1;:37::49;;:33;:52::53:0;:56::57;;:52:::1;:33;:28::58;;60:29:60:30:0;:33::35;;:29:::1;:38::40:0;;:29:::1;7:24:7:101:0;;60:28:60:45:1;;61:32:61:34:0;;:16::36:1;;;;;;;;;;;;;;;;50:12:62:13:0;63:20:63:21;:23::24;:26::27;:12::29:1;;;;;;;;;;50::62:13;49:8:64:9:0;65:21:65:22;;:25::26;;:21:::1;7:24:7:101:0;;65:20:65:31:1;66:22:66:24:0;;:27::28;;:22:::1;7:24:7:101:0;;66:21:66:33:1;67:20:67:22:0;;:25::27;;:20:::1;7:24:7:101:0;;67:19:67:32:1;68:25:68:26:0;;:29::30;;:25:::1;:33::36:0;;:25:::1;:39::40:0;:43::44;;:39:::1;:25;:20::45;;69:25:69:26:0;;:34::35;;:38::40;;:34:::1;:29::41;;:25;:44::46:0;;:49::52;;:44:::1;:25;:20::53;;70:23:70:25:0;;:28::30;;:23:::1;7:24:7:101:0;;70:22:70:35:1;:39::40:0;;:21:::1;7:24:7:101:0;;70:20:70:45:1;;71:24:71:26:0;;:8::28:1;;;;;;;;;;;;;;49::64:9',
+      },
+      '5': {
+        bytecode: '7600a2637dd28876d1c0ce01207f758876d3008876cd015188cc02b004a1676d0068c0ce826301207f7500c4658c76cd810200019701519c78d15479879a7b937c76916675779d676d68c0c7c0cd88c0cec0d188c076009f637567ce00c3658c76ce5379877b937c76916675c47663658c76d15379877b7c947c769166687500a2697568c0c6c0cc88c0d0c0d3a169',
+        name: 'outlined source span 5',
+        requires: [],
+        logs: [],
+        sourceMap: '16:4:18:5:1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;',
+      },
+      '6': {
+        bytecode: 'a8011f7f757c820160a1635167a852687c7e7e',
+        name: 'outlined source span 6',
+        requires: [],
+        logs: [],
+        sourceMap: '16:4:18:5:1;;;;;;;;;;;;;;;;',
+      },
+      '7': {
+        bytecode: '537a75537a75537a75',
+        name: 'outlined source span 7',
+        requires: [],
+        logs: [],
+        sourceMap: '61:16:61:36:1;;;;;;;;',
+      },
+      '8': {
+        bytecode: '79818252807c7e7e',
+        name: 'outlined source span 8',
+        requires: [],
+        logs: [],
+        sourceMap: '16:4:18:5;;;;;;;',
+      },
+      '9': {
+        bytecode: '765580547f77010088',
+        name: 'outlined source span 9',
+        requires: [],
+        logs: [],
+        sourceMap: '76:13:76:26:1;;;;;;;',
+      },
+      '10': {
+        bytecode: '78818252807c7e7e',
+        name: 'outlined source span 10',
+        requires: [],
+        logs: [],
+        sourceMap: '16:4:18:5;;;;;;;',
+      },
+      '11': {
+        bytecode: '9752795279',
+        name: 'outlined source span 11',
+        requires: [],
+        logs: [],
+        sourceMap: '23:23:23:50:1;24:25:24:27:0;;:31::33;',
+      },
+      '12': {
+        bytecode: '7b538a7b538a7b538a7b7b7e7c7e',
+        name: 'outlined source span 12',
+        requires: [],
+        logs: [],
+        sourceMap: '61:16:61:36:1;;;;;;;;;;;;;',
+      },
+      '13': {
+        bytecode: '7c538a7c538a7e7c568a78558a7551',
+        name: 'outlined source span 13',
+        requires: [],
+        logs: [],
+        sourceMap: '26:8:26:24:1;;;;;;;20:4:27:5;;;;;;;',
+      },
+      '14': {
+        bytecode: '7995518a975779587995518a97',
+        name: 'outlined source span 14',
+        requires: [],
+        logs: [],
+        sourceMap: '41:28:41:30;:23:::1;7:24:7:101:0;;41:22:41:35:1;42:23:42:25:0;;:28::30;;:23:::1;7:24:7:101:0;;42:22:42:35:1',
+      },
+    },
+  },
+  functionBodies: {
+    ca5f533a: '5a8a52588a7c7b95518a97538a7c568a78558a7551',
+    '3f4afdfd': '5a8a52588a53588a54588a78547995518a975379567995518a97537a547a93719395518a5b8a5995518a9794008a7c537a947b94008a5d8a',
+    '28171cf0': '5a8a52588a78527995518a975379547995518a975379557993719395518a5b8a5995518a9794008a7c537a947b94008a5d8a',
+    '7be049e3': '5a8a52588a53588a54588a55588a56588a5379545e8a53797895518a97577a537995518a9756795a7995518a97537a95518a97587a587995518a97547a95518a977b537994008a7c527994008a78009c6376009c635579565e8a767695518a975879527993518a975979537993518a9795518a975379947894008a53547995518a97767695518a97765254799594008a707c527994008a955856799594008a525f7995607995518a976f5c8a670051005c8a686778527995518a9776537995518a975579527995518a9753795479955279945252799594008a54795279527994008a95577954799594008a5c795e7995518a97577995518a976f5c8a685e7a568a011279558a6d6d6d6d6d6d6d6d6d51',
+    d5ef91ed: '5a8a7c00598a65765a9f6378527995518a977b757c768b598a7700675168667c538a7b568a5279558a6d51',
+    '4e4e5548': '5a8a787b8b518a9700598a65765a9f6378705579528a537a757c6b7c6c537a757c6b7c6c768b598a7700675168667b7b7c538a7c538a7e7b568a5279558a6d51',
+    '2516192b': '5a8a787b8b518a975100598a65765a9f637853795579547956795879548a547a7572537a547a7572537a547a7572537a768b598a77006751686672537a5c8a7b568a5279558a6d51',
+  },
+  fingerprint: 'cab15ece0982c525208d889da0a97bf4dc968d2e4244b8d52bfaa4e6e344f777',
+  compiler: {
+    name: 'solidc',
+    version: '0.51.1',
+    options: {
+      enforceFunctionParameterTypes: true,
+      enforceLocktimeGuard: true,
+      enforceFinalRequire: true,
+      allowUnsafeOperations: true,
+      commitmentLimit: 128,
+      messageBus: false,
+    },
+  },
+  updatedAt: '2026-11-17T09:55:16.431Z',
+  invocationAnalysis: {
+    version: 1,
+    protocolVersions: [
+      1,
+    ],
+    functions: [
+      {
+        id: 0,
+        name: 'norm',
+        arity: 1,
+        entryPoint: false,
+        calls: [],
+        closure: [
+          0,
+        ],
+        component: 0,
+        recursive: false,
+        reads: [],
+        writes: [],
+        effects: [],
+        unknown: false,
+        bounded: true,
+        maximumDirectInvocations: 0,
+      },
+      {
+        id: 1,
+        name: 'fpMul',
+        arity: 2,
+        entryPoint: true,
+        selector: 'ca5f533a',
+        calls: [],
+        closure: [
+          1,
+        ],
+        component: 1,
+        recursive: false,
+        reads: [],
+        writes: [],
+        effects: [],
+        unknown: false,
+        outputs: [
+          {
+            type: 'bigint',
+          },
+        ],
+        bounded: true,
+        maximumDirectInvocations: 0,
+      },
+      {
+        id: 2,
+        name: 'fp2Mul',
+        arity: 4,
+        entryPoint: true,
+        selector: '3f4afdfd',
+        calls: [
+          0,
+        ],
+        closure: [
+          0,
+          2,
+        ],
+        component: 2,
+        recursive: false,
+        reads: [],
+        writes: [],
+        effects: [],
+        unknown: false,
+        outputs: [
+          {
+            type: 'bigint',
+          },
+          {
+            type: 'bigint',
+          },
+        ],
+        bounded: true,
+        maximumDirectInvocations: 0,
+      },
+      {
+        id: 3,
+        name: 'fp2Sqr',
+        arity: 2,
+        entryPoint: true,
+        selector: '28171cf0',
+        calls: [
+          0,
+        ],
+        closure: [
+          0,
+          3,
+        ],
+        component: 3,
+        recursive: false,
+        reads: [],
+        writes: [],
+        effects: [],
+        unknown: false,
+        outputs: [
+          {
+            type: 'bigint',
+          },
+          {
+            type: 'bigint',
+          },
+        ],
+        bounded: true,
+        maximumDirectInvocations: 0,
+      },
+      {
+        id: 4,
+        name: 'g1Add',
+        arity: 6,
+        entryPoint: true,
+        selector: '7be049e3',
+        calls: [
+          0,
+        ],
+        closure: [
+          0,
+          4,
+        ],
+        component: 4,
+        recursive: false,
+        reads: [],
+        writes: [],
+        effects: [],
+        unknown: false,
+        outputs: [
+          {
+            type: 'bigint',
+          },
+          {
+            type: 'bigint',
+          },
+          {
+            type: 'bigint',
+          },
+        ],
+        bounded: true,
+        maximumDirectInvocations: 0,
+      },
+      {
+        id: 5,
+        name: 'benchFpMul',
+        arity: 1,
+        entryPoint: true,
+        selector: 'd5ef91ed',
+        calls: [],
+        closure: [
+          5,
+        ],
+        component: 5,
+        recursive: false,
+        reads: [],
+        writes: [],
+        effects: [],
+        unknown: false,
+        outputs: [
+          {
+            type: 'bigint',
+          },
+        ],
+        bounded: true,
+        maximumDirectInvocations: 0,
+      },
+      {
+        id: 6,
+        name: 'benchFp2Mul',
+        arity: 1,
+        entryPoint: true,
+        selector: '4e4e5548',
+        calls: [
+          2,
+        ],
+        closure: [
+          0,
+          2,
+          6,
+        ],
+        component: 6,
+        recursive: false,
+        reads: [],
+        writes: [],
+        effects: [],
+        unknown: false,
+        outputs: [
+          {
+            type: 'bigint',
+          },
+          {
+            type: 'bigint',
+          },
+        ],
+        bounded: true,
+        maximumDirectInvocations: 0,
+      },
+      {
+        id: 7,
+        name: 'benchG1Add',
+        arity: 1,
+        entryPoint: true,
+        selector: '2516192b',
+        calls: [
+          4,
+        ],
+        closure: [
+          0,
+          4,
+          7,
+        ],
+        component: 7,
+        recursive: false,
+        reads: [],
+        writes: [],
+        effects: [],
+        unknown: false,
+        outputs: [
+          {
+            type: 'bigint',
+          },
+          {
+            type: 'bigint',
+          },
+          {
+            type: 'bigint',
+          },
+        ],
+        bounded: true,
+        maximumDirectInvocations: 0,
+      },
+    ],
+    components: [
+      {
+        id: 0,
+        functions: [
+          0,
+        ],
+        recursive: false,
+      },
+      {
+        id: 1,
+        functions: [
+          1,
+        ],
+        recursive: false,
+      },
+      {
+        id: 2,
+        functions: [
+          2,
+        ],
+        recursive: false,
+      },
+      {
+        id: 3,
+        functions: [
+          3,
+        ],
+        recursive: false,
+      },
+      {
+        id: 4,
+        functions: [
+          4,
+        ],
+        recursive: false,
+      },
+      {
+        id: 5,
+        functions: [
+          5,
+        ],
+        recursive: false,
+      },
+      {
+        id: 6,
+        functions: [
+          6,
+        ],
+        recursive: false,
+      },
+      {
+        id: 7,
+        functions: [
+          7,
+        ],
+        recursive: false,
+      },
+    ],
+  },
+} as const;

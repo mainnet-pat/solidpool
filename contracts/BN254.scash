@@ -1,0 +1,100 @@
+pragma solidcash ^0.51.0;
+
+/// BN254 (alt_bn128) arithmetic primitives, the curve Tornado's Groth16
+/// verifier uses. Nothing here is Tornado-specific: it is the cost probe for
+/// "can a pairing check fit in BCH Script?".
+contract BN254() {
+    bigint constant P = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
+    bigint constant XI = 9;
+
+    function norm(bigint x) internal pure returns (bigint) {
+        bigint y = x % P;
+        if (y < 0) y = y + P;
+        return y;
+    }
+
+    function fpMul(bigint a, bigint b) public pure returns (bigint) {
+        return (a * b) % P;
+    }
+
+    function fp2Mul(bigint a0, bigint a1, bigint b0, bigint b1) public pure returns (bigint, bigint) {
+        bigint aa = (a0 * b0) % P;
+        bigint bb = (a1 * b1) % P;
+        bigint cross = ((a0 + a1) * (b0 + b1)) % P;
+        bigint c0 = norm(aa - (bb * XI) % P);
+        bigint c1 = norm(cross - aa - bb);
+        return (c0, c1);
+    }
+
+    function fp2Sqr(bigint a0, bigint a1) public pure returns (bigint, bigint) {
+        bigint aa = (a0 * a0) % P;
+        bigint bb = (a1 * a1) % P;
+        bigint cross = ((a0 + a1) * (a0 + a1)) % P;
+        return (norm(aa - (bb * XI) % P), norm(cross - aa - bb));
+    }
+
+    /// Jacobian point addition for a = 0 (BN254), add-2007-bl.
+    function g1Add(
+        bigint x1, bigint y1, bigint z1,
+        bigint x2, bigint y2, bigint z2
+    ) public pure returns (bigint, bigint, bigint) {
+        bigint z1z1 = (z1 * z1) % P;
+        bigint z2z2 = (z2 * z2) % P;
+        bigint u1 = (x1 * z2z2) % P;
+        bigint u2 = (x2 * z1z1) % P;
+        bigint s1 = (((y1 * z2) % P) * z2z2) % P;
+        bigint s2 = (((y2 * z1) % P) * z1z1) % P;
+        bigint h = norm(u2 - u1);
+        bigint r = norm(s2 - s1);
+        if (h == 0) {
+            if (r == 0) {
+                // doubling (dbl-2009-l)
+                bigint a = (x1 * x1) % P;
+                bigint b = (y1 * y1) % P;
+                bigint c = (b * b) % P;
+                bigint d = norm((((x1 + b) % P) * ((x1 + b) % P)) % P - a - c);
+                bigint e = (3 * a) % P;
+                bigint f = (e * e) % P;
+                bigint x3 = norm(f - 2 * d);
+                bigint y3 = norm(e * norm(d - x3) - 8 * c);
+                bigint z3 = (2 * y1 * z1) % P;
+                return (x3, y3, z3);
+            }
+            return (0, 1, 0);
+        }
+        bigint hh = (h * h) % P;
+        bigint hhh = (hh * h) % P;
+        bigint v = (u1 * hh) % P;
+        bigint x3 = norm(r * r - hhh - 2 * v);
+        bigint y3 = norm(r * norm(v - x3) - s1 * hhh);
+        bigint z3 = (((z1 * z2) % P) * h) % P;
+        return (x3, y3, z3);
+    }
+
+    function benchFpMul(bigint seed) public pure returns (bigint) {
+        bigint acc = seed;
+        for (uint32 i = 0; i < 10; i = i + 1) {
+            acc = (acc * acc) % P;
+        }
+        return acc;
+    }
+
+    function benchFp2Mul(bigint seed) public pure returns (bigint, bigint) {
+        bigint a0 = seed;
+        bigint a1 = (seed + 1) % P;
+        for (uint32 i = 0; i < 10; i = i + 1) {
+            (a0, a1) = fp2Mul(a0, a1, a0, a1);
+        }
+        return (a0, a1);
+    }
+
+    function benchG1Add(bigint seed) public pure returns (bigint, bigint, bigint) {
+        bigint x = seed;
+        bigint y = (seed + 1) % P;
+        bigint z = 1;
+        for (uint32 i = 0; i < 10; i = i + 1) {
+            (x, y, z) = g1Add(x, y, z, x, y, z);
+        }
+        return (x, y, z);
+    }
+}

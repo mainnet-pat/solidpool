@@ -1,0 +1,83 @@
+{
+  "name": "bch-note-pools",
+  "private": true,
+  "license": "ISC",
+  "engines": {
+    "node": ">=22"
+  },
+  "type": "module",
+  "scripts": {
+    "service": "tsx service/server.ts",
+    "indexer": "tsx indexer/main.ts",
+    "start": "tsx scripts/dev.ts",
+    "start:built": "tsx scripts/dev.ts --built",
+    "build:prod": "tsx scripts/prod.ts --build",
+    "start:prod": "tsx scripts/prod.ts",
+    "web:dev": "npm --prefix web run dev",
+    "web:build": "npm --prefix web run build",
+    "web:typecheck": "npm --prefix web run typecheck",
+    "typecheck": "tsc --noEmit",
+    "solidhat:compile": "node scripts/solidhat.mjs compile",
+    "solidhat:test": "node scripts/solidhat.mjs test",
+    "solidhat:clean": "node scripts/solidhat.mjs clean",
+    "contracts:build": "node scripts/solidhat.mjs compile",
+    "contracts:check": "tsx scripts/check-contracts.ts",
+    "test:contracts": "node scripts/solidhat.mjs test",
+    "coverage:contracts": "node node_modules/vitest/vitest.mjs run --config vitest.solidhat.config.ts --coverage",
+    "verifier:build": "tsx service/verifier/build.ts",
+    "verifier:check": "tsx service/verifier/extract-vk.ts --check && tsx service/verifier/build.ts --check",
+    "check": "npm run notices:check && npm run contracts:check && npm run verifier:check",
+    "test:verifier-universal": "tsx test/verifier-universal.ts",
+    "test:verifier-sizing": "tsx test/verifier-sizing.ts",
+    "measure": "tsx scripts/measure.ts",
+    "deploy": "tsx scripts/deploy-network.ts",
+    "test": "npm run check && npm run test:contracts && tsx test/wallet-signing.ts && tsx test/self-transfer.ts && tsx test/app-flows.ts && tsx service/verifier/tamper.ts && tsx service/verifier/forge.ts && tsx test/verifier-sizing.ts && tsx test/network-check.ts && tsx test/production-settings.ts && tsx test/indexer-http.ts && tsx test/deployer-key.ts && tsx test/deploy-scripts.ts && tsx test/withdraw-note.ts && tsx test/terms-doc.ts && tsx test/bcmr.ts",
+    "test:ui": "tsx test/ui.ts",
+    "test:app": "tsx test/app.ts",
+    "test:real-node": "tsx test/real-node.ts",
+    "seed:local": "tsx scripts/seed-local.ts",
+    "test:prover-compat": "tsx test/prover-compat.ts",
+    "notices": "tsx scripts/notices/make.ts",
+    "notices:check": "tsx scripts/notices/check.ts"
+  },
+  "dependencies": {
+    "@bitauth/libauth": "^3.1.0-next.8",
+    "@noble/curves": "1.9.7",
+    "@noble/hashes": "^2.2.0",
+    "@solidpool/verifier": "file:packages/verifier",
+    "@walletconnect/sign-client": "2.21.8",
+    "@walletconnect/utils": "2.21.8",
+    "circomlibjs": "^0.1.7",
+    "qrcode": "^1.5.4",
+    "snarkjs": "github:tornadocash/snarkjs#869181cfaf7526fe8972073d31655493a04326d5",
+    "websnark": "github:tornadocash/websnark#4c0af6a8b65aabea3c09f377f63c44e7a58afa6d",
+    "ws": "^8.23.0"
+  },
+  "devDependencies": {
+    "@solidcash/solidc": "0.51.1",
+    "@solidcash/solidcash": "0.51.1",
+    "@solidcash/solidhat": "0.51.1",
+    "@solidcash/testing": "0.51.1",
+    "@solidcash/utils": "0.51.1",
+    "@types/node": "^22.20.5",
+    "@vitest/coverage-v8": "5.0.4",
+    "esbuild": "^0.28.2",
+    "playwright": "1.64.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.8",
+    "vitest": "5.0.4"
+  },
+  "overrides": {
+    "snarkjs": {
+      "eslint": "^10.15.0",
+      "yargs": "^17.7.2"
+    },
+    "@ethersproject/providers": {
+      "ws": "$ws"
+    },
+    "viem": {
+      "ws": "$ws"
+    }
+  }
+}

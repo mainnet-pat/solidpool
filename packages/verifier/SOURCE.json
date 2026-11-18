@@ -1,0 +1,37 @@
+{
+  "repository": "https://github.com/mr-zwets/groth16_cashscript",
+  "path": "chunked/bn254",
+  "branch": "shared-verifier",
+  "commit": "61c566641bf6836780e6d386c81a2ee0505129a7",
+  "upstream": {
+    "name": "verifier.cash",
+    "branch": "main",
+    "commit": "974d86d73b16666520eef16404919a836d88ea74"
+  },
+  "changes": [
+    "64d4e57 Bind a third runtime public input (recipient) for the Tornado pool",
+    "4475ba8 Compose the verifier with a pool beside it",
+    "bcfc3fb Make the verifier runtime environment-neutral and package it",
+    "519c7cd Size the fillers once on a libauth that already charges OP_DEFINE bodies",
+    "be700ce Let the Node tools choose the verifying key again",
+    "2aa8ddd Share one verifier among all pools, and let anyone sweep an idle coin",
+    "57c0d9e Name the shipped key's source by its content, not a local path",
+    "61c5666 Merge browser-native-verifier: name the shipped key's source by its content"
+  ],
+  "files": {
+    "assert.mjs": "added",
+    "bn-native-sound/README.md": "changed",
+    "bn-native-sound/asm.mjs": "changed",
+    "bn-native-sound/kernels.mjs": "unchanged",
+    "bn-native-sound/protocol.mjs": "changed",
+    "bn-native-sound/runtime.d.ts": "added",
+    "bn-native-sound/runtime.mjs": "added",
+    "bn-native-sound/script.mjs": "changed",
+    "bn-native-sound/transaction.mjs": "changed",
+    "bn-native-sound/vm.mjs": "changed",
+    "bytes.mjs": "added",
+    "sound-si-gls/math.mjs": "changed",
+    "sound-si-gls/protocol.mjs": "changed",
+    "vk-3in.json": "added"
+  }
+}
