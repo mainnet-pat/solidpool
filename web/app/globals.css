@@ -237,10 +237,22 @@ details.advanced[open] summary { margin-bottom: 14px; }
 
 /* Assets, network choice and pool creation */
 .pool-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 12px; margin-top: 12px; }
-.syncbar { margin-top: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 10px 14px; }
-.sync-text { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
-.syncbar .progress { margin-bottom: 0; }
-.syncbar .progress i { animation: none; transition: width .25s ease; }
+/* The chain read's progress sits in the pools' header and takes no room: nothing below moves. */
+.pools-head { position: relative; }
+.pools-tools { display: inline-flex; align-items: center; gap: 12px; flex: none; }
+.sync-inline { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; font-family: var(--mono); white-space: nowrap; }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: sync-pulse 1.2s ease-in-out infinite; }
+@keyframes sync-pulse { 50% { opacity: .3; transform: scale(.8); } }
+.sync-line { position: absolute; left: 0; right: 0; bottom: -9px; height: 2px; border-radius: 99px; background: var(--raise); overflow: hidden; pointer-events: none; }
+.sync-line i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 99px; transition: width .3s ease; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+/* A tile that appears fades in; one that is updated in place stays still (components/morph.ts). */
+.pool-tile:not(.pool-skeleton) { animation: tile-in .28s ease both; }
+@keyframes tile-in { from { opacity: 0; transform: translateY(3px); } }
+@media (prefers-reduced-motion: reduce) {
+  .sync-dot, .pool-tile:not(.pool-skeleton) { animation: none; }
+  .sync-line i { transition: none; }
+}
 .pool-empty { padding: 4px 0; }
 .pool-tile { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
 .pool-tile-head { width: 100%; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; padding: 14px 16px; background: none; border: 0; color: var(--text); text-align: left; cursor: pointer; font: inherit; }

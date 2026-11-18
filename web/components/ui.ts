@@ -8,6 +8,7 @@ import { KNOWN_SERVERS as PUBLIC_SERVERS, type KnownServer } from '../src/known-
 import { networkFor, readPageSettings, type PageSettings } from '../src/page-settings';
 import { poolDenominations } from '../src/pools';
 import { POOL_SKELETON, TERMS_VERSION } from './markup';
+import { morph } from './morph';
 
 // UI logic, mounted client-side. The state, notes, proofs and transactions all live in
 // this browser, through the engine and the user's Fulcrum server.
@@ -411,11 +412,11 @@ function renderPools() {
   const reading = pools.length === 0 && STATE?.network !== CONFIG.networkId;
   $('pools').setAttribute('aria-busy', String(reading));
   if (pools.length === 0) {
-    $('pools').innerHTML = reading ? POOL_SKELETON : `<div class="pool-empty"><p class="hint">No pools on ${esc(CONFIG.networkLabel || CONFIG.networkId)} yet. Connect a wallet and create one.</p></div>`;
+    morph($('pools'), reading ? POOL_SKELETON : `<div class="pool-empty"><p class="hint">No pools on ${esc(CONFIG.networkLabel || CONFIG.networkId)} yet. Connect a wallet and create one.</p></div>`);
     if (POOL_VIEW) hidePoolModal();
     return;
   }
-  $('pools').innerHTML = poolGroups().map((group) => {
+  morph($('pools'), poolGroups().map((group) => {
     const known = group.pools.filter((p) => !p.unread);
     const notes = known.reduce((sum, p) => sum + countOf(p.notes), 0n);
     const spent = known.reduce((sum, p) => sum + countOf(p.spent), 0n);
@@ -433,7 +434,7 @@ function renderPools() {
         <span class="pool-tile-chevron" aria-hidden="true">›</span>
       </button>
     </section>`;
-  }).join('');
+  }).join(''));
   document.querySelectorAll('.pool-tile-head').forEach((b) => (b as HTMLElement).onclick = () => {
     openPoolModal((b as HTMLElement).dataset.asset!);
   });
@@ -604,12 +605,26 @@ function updateSourceBadge(): void {
     : 'Checked against the chain through Fulcrum. Click to change how data loads.';
 }
 
+/**
+ * The chain read's progress, in the pools' header, where it takes no room of its own: a short
+ * "Syncing 3/12" in the place of Refresh, its full words for assistive technology and as a tooltip,
+ * and a thin line along the header's edge. Nothing below moves when it comes or goes.
+ */
 function showSync(text: string, ratio: number): void {
+  const counted = /(\d+) of (\d+)/.exec(text);
+  $('syncText').textContent = counted ? `Syncing ${counted[1]}/${counted[2]}` : 'Syncing…';
+  $('syncWords').textContent = text;
+  $('syncStatus').title = text;
   $('syncStatus').classList.remove('hidden');
-  $('syncText').textContent = text;
+  $('syncLine').classList.remove('hidden');
+  $('refreshBtn').classList.add('hidden');
   $('syncProgress').style.width = `${Math.max(0, Math.min(1, ratio)) * 100}%`;
 }
-const hideSync = () => $('syncStatus').classList.add('hidden');
+const hideSync = () => {
+  $('syncStatus').classList.add('hidden');
+  $('syncLine').classList.add('hidden');
+  $('refreshBtn').classList.remove('hidden');
+};
 const updateSync = (progress: any): void => {
   const done = Number(progress?.done ?? 0);
   const total = Number(progress?.total ?? 0);
@@ -639,6 +654,9 @@ async function refresh() {
   updateSourceBadge();
   const apply = () => {
     if (OPEN && !poolOf(OPEN)) OPEN = null;
+    // Fresh rows carry no token names or icons: give them the ones already known before they are
+    // drawn, or each read would draw the bare rows first and flash back.
+    applyKnownIdentities();
     updateHeader();
     renderPools();
     renderRecipientWarning();
@@ -736,6 +754,25 @@ function preloadEngine(): void {
   else setTimeout(start, 800);
 }
 
+/** What a token pool shows of its issuer's identity, over what its row says. */
+const identityFields = (pool: any, found: any) => ({
+  name: found.name ?? pool.name,
+  symbol: found.symbol ?? pool.symbol,
+  decimals: found.decimals ?? pool.decimals,
+  icon: found.icon,
+  verified: Boolean(found.verified),
+  pinned: Boolean(found.pinned),
+});
+
+/** Every token pool on screen takes the identity this page already resolved for its asset. */
+function applyKnownIdentities(): void {
+  for (const pool of statePools()) {
+    if (pool.kind !== 'token' || !pool.asset) continue;
+    const found = IDENTITIES.get(pool.asset);
+    if (found) Object.assign(pool, identityFields(pool, found));
+  }
+}
+
 /** A token pool's name, symbol, decimals and icon come from its issuer where a registry resolves. */
 async function resolvePoolIdentities() {
   if (!ENGINE) return;
@@ -750,14 +787,9 @@ async function resolvePoolIdentities() {
       const found = identities[pool.asset];
       if (!found) continue;
       IDENTITIES.set(pool.asset, found);
-      Object.assign(pool, {
-        name: found.name ?? pool.name,
-        symbol: found.symbol ?? pool.symbol,
-        decimals: found.decimals ?? pool.decimals,
-        icon: found.icon,
-        verified: Boolean(found.verified),
-        pinned: Boolean(found.pinned),
-      });
+      const fields = identityFields(pool, found);
+      if (Object.entries(fields).every(([key, value]) => pool[key] === value)) continue;
+      Object.assign(pool, fields);
       changed = true;
     }
     if (changed) {
@@ -939,14 +971,14 @@ const poolsOfAsset = (asset: string | undefined) => allPools()
 function renderAssetView(a: any) {
   const list = $('assetsList');
   if (!wallet) {
-    list.innerHTML = `<div class="empty">
+    morph(list, `<div class="empty">
       <p>Connect a wallet to see your balance and create a pool for an asset you hold.</p>
       <button class="btn quiet" data-connect>Connect wallet</button>
-    </div>`;
+    </div>`);
     return;
   }
   if (!a) {
-    list.innerHTML = '<div class="hint">Loading balances…</div>';
+    morph(list, '<div class="hint">Loading balances…</div>');
     return;
   }
   const existing = (asset?: string) => {
@@ -979,7 +1011,7 @@ function renderAssetView(a: any) {
       <p class="hint">${esc(existing(token.category))}</p>
     </div>`;
   }).join('');
-  list.innerHTML = `${bchRow}${tokenRows || '<p class="hint">No tokens in this wallet yet.</p>'}`;
+  morph(list, `${bchRow}${tokenRows || '<p class="hint">No tokens in this wallet yet.</p>'}`);
 }
 
 function renderAssets(a: any) {

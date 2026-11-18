@@ -147,13 +147,13 @@ export const MARKUP: string = `
   <section class="block" aria-labelledby="poolsTitle">
     <div class="block-head pools-head">
       <h2 id="poolsTitle"><span>Choose a pool</span> <button type="button" class="tag tag-button" id="dataSource" title="Change how this page loads data" aria-haspopup="dialog"></button></h2>
-      <button class="link" id="refreshBtn">Refresh</button>
+      <span class="pools-tools">
+        <span class="sync-inline hidden" id="syncStatus" role="status" aria-live="polite"><span class="sync-dot" aria-hidden="true"></span><span id="syncText" aria-hidden="true">Syncing…</span><span class="sr-only" id="syncWords">Catching up with the chain…</span></span>
+        <button class="link" id="refreshBtn">Refresh</button>
+      </span>
+      <span class="sync-line hidden" id="syncLine" aria-hidden="true"><i id="syncProgress"></i></span>
     </div>
     <p class="hint section-hint">Pick the amount you want to deposit. Each pool pays a fixed amount.</p>
-    <div class="syncbar hidden" id="syncStatus" role="status" aria-live="polite">
-      <div class="sync-text" id="syncText">Catching up with the chain…</div>
-      <div class="progress"><i id="syncProgress"></i></div>
-    </div>
     <div class="pool-tiles" id="pools" aria-busy="true">${POOL_SKELETON}</div>
     <div class="pool-create">
       <button class="btn quiet" id="addPoolBtn">Create a pool</button>

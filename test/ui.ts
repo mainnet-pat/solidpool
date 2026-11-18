@@ -536,6 +536,43 @@ await page.check('input[name="dataSource"][value="trustless"]');
 await page.click('#settingsSave');
 await page.waitForFunction(() => document.getElementById('dataSource')?.textContent === 'Trustless', null, { timeout: 120_000 });
 await page.waitForFunction(() => document.getElementById('syncStatus')?.classList.contains('hidden'), null, { timeout: 120_000 });
+// The read's progress takes no room of its own: the tiles do not move when it comes or goes.
+// No function inside page.evaluate is given a name: tsx would wrap it in a helper the browser lacks.
+const tilesTop = await page.evaluate(() => {
+  const pools = document.getElementById('pools')!;
+  const before = pools.getBoundingClientRect().top;
+  for (const id of ['syncStatus', 'syncLine']) document.getElementById(id)!.classList.remove('hidden');
+  document.getElementById('refreshBtn')!.classList.add('hidden');
+  const during = pools.getBoundingClientRect().top;
+  for (const id of ['syncStatus', 'syncLine']) document.getElementById(id)!.classList.add('hidden');
+  document.getElementById('refreshBtn')!.classList.remove('hidden');
+  return { before, during };
+});
+assert(Math.abs(tilesTop.before - tilesTop.during) < 0.5, `the progress moves nothing below it (${tilesTop.before}, ${tilesTop.during})`);
+// A read that ends where the last one did updates the tiles in place: no tile, and no icon, is
+// replaced, so nothing flashes. First the switch's own read must be over: its progress shows only
+// once the engine has loaded, so a hidden progress alone does not say it has finished.
+await page.waitForFunction(() => document.getElementById('pools')?.getAttribute('aria-busy') === 'false'
+  && document.querySelector('#pools .pool-skeleton') === null && document.querySelector('#pools .pool-tile-head') !== null
+  && document.getElementById('syncStatus')?.classList.contains('hidden') === true, null, { timeout: 120_000 });
+await page.evaluate(() => {
+  (window as any).replacedInPools = [];
+  new MutationObserver((records) => {
+    for (const record of records) {
+      for (const node of Array.from(record.removedNodes)) {
+        if (node.nodeType !== 1) continue;
+        const added = Array.from(record.addedNodes).filter((other) => other.nodeType === 1)
+          .map((other) => (other as Element).outerHTML.replace(/\s+/g, ' ').slice(0, 140)).join(' + ');
+        (window as any).replacedInPools.push(`${(node as Element).outerHTML.replace(/\s+/g, ' ').slice(0, 140)} -> ${added || 'nothing'}`);
+      }
+    }
+  }).observe(document.getElementById('pools')!, { childList: true, subtree: true });
+});
+await page.click('#refreshBtn');
+await page.waitForFunction(() => !document.getElementById('syncStatus')?.classList.contains('hidden'), null, { timeout: 30_000 }).catch(() => undefined);
+await page.waitForFunction(() => document.getElementById('syncStatus')?.classList.contains('hidden'), null, { timeout: 120_000 });
+const replaced = await page.evaluate(() => (window as any).replacedInPools as string[]);
+assert(replaced.length === 0, `a read that changes nothing replaces no element of the pools (${replaced.length}: ${replaced.join(' | ')})`);
 // The cache lands when the chain read finishes; poll instead of assuming a fixed delay.
 const cached = await page.evaluate(`(async () => {
   const hasState = () => new Promise((resolve) => {
